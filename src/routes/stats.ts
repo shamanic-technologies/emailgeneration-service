@@ -11,6 +11,14 @@ const router = Router();
  * Body: { runIds: string[] }
  */
 router.post("/stats/by-model", async (req, res) => {
+  // #swagger.tags = ['Stats']
+  // #swagger.summary = 'Get email generation stats grouped by model (internal)'
+  /* #swagger.parameters['body'] = {
+    in: 'body',
+    required: true,
+    schema: { runIds: ['string'] }
+  } */
+  // #swagger.responses[200] = { description: 'Stats grouped by model', schema: { stats: [{ model: 'string', count: 0, runIds: ['string'] }] } }
   try {
     const { runIds } = req.body as { runIds: string[] };
 

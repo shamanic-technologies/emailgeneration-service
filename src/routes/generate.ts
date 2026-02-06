@@ -13,6 +13,42 @@ const router = Router();
  * POST /generate - Generate an email for a lead
  */
 router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => {
+  // #swagger.tags = ['Email Generation']
+  // #swagger.summary = 'Generate an email for a lead'
+  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string', description: 'Clerk Organization ID' }
+  /* #swagger.parameters['body'] = {
+    in: 'body',
+    required: true,
+    schema: {
+      runId: 'string',
+      apolloEnrichmentId: 'string',
+      leadFirstName: 'string',
+      leadLastName: 'string',
+      leadTitle: 'string',
+      leadEmail: 'string',
+      leadLinkedinUrl: 'string',
+      leadCompanyName: 'string',
+      leadCompanyDomain: 'string',
+      leadCompanyIndustry: 'string',
+      leadCompanySize: 'string',
+      leadCompanyRevenueUsd: 'string',
+      clientCompanyName: 'string',
+      clientBrandUrl: 'string',
+      clientCompanyOverview: 'string',
+      clientValueProposition: 'string',
+      clientTargetAudience: 'string',
+      clientCustomerPainPoints: 'string',
+      clientKeyFeatures: 'string',
+      clientProductDifferentiators: 'string',
+      clientCompetitors: 'string',
+      clientSocialProof: 'string',
+      clientCallToAction: 'string',
+      clientAdditionalContext: 'string'
+    }
+  } */
+  // #swagger.responses[200] = { description: 'Generated email', schema: { id: 'string', subject: 'string', bodyHtml: 'string', bodyText: 'string', tokensInput: 0, tokensOutput: 0 } }
+  // #swagger.responses[400] = { description: 'Missing required fields' }
+  // #swagger.responses[401] = { description: 'Unauthorized' }
   try {
     const {
       runId,
@@ -170,6 +206,10 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
  * GET /generations/:runId - Get all generations for a run
  */
 router.get("/generations/:runId", serviceAuth, async (req: AuthenticatedRequest, res) => {
+  // #swagger.tags = ['Email Generation']
+  // #swagger.summary = 'Get all generations for a run'
+  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
+  // #swagger.responses[200] = { description: 'List of generations' }
   try {
     const { runId } = req.params;
 
@@ -192,6 +232,11 @@ router.get("/generations/:runId", serviceAuth, async (req: AuthenticatedRequest,
  * GET /generations/by-enrichment/:apolloEnrichmentId - Get generation by enrichment ID
  */
 router.get("/generations/by-enrichment/:apolloEnrichmentId", serviceAuth, async (req: AuthenticatedRequest, res) => {
+  // #swagger.tags = ['Email Generation']
+  // #swagger.summary = 'Get generation by enrichment ID'
+  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
+  // #swagger.responses[200] = { description: 'Email generation' }
+  // #swagger.responses[404] = { description: 'Generation not found' }
   try {
     const { apolloEnrichmentId } = req.params;
 
@@ -219,6 +264,15 @@ router.get("/generations/by-enrichment/:apolloEnrichmentId", serviceAuth, async 
  * Body: { runIds: string[] }
  */
 router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
+  // #swagger.tags = ['Stats']
+  // #swagger.summary = 'Get aggregated stats for multiple run IDs'
+  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
+  /* #swagger.parameters['body'] = {
+    in: 'body',
+    required: true,
+    schema: { runIds: ['string'] }
+  } */
+  // #swagger.responses[200] = { description: 'Aggregated stats', schema: { stats: { emailsGenerated: 0 } } }
   try {
     const { runIds } = req.body as { runIds: string[] };
 
