@@ -11,7 +11,7 @@ export async function getByokKey(
   const response = await fetch(
     `${keyServiceUrl}/internal/keys/${provider}/decrypt?clerkOrgId=${clerkOrgId}`,
     {
-      headers: serviceKey ? { "X-Service-Key": serviceKey } : {},
+      headers: serviceKey ? { "X-Api-Key": serviceKey } : {},
     }
   );
 
