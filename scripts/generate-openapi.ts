@@ -8,13 +8,13 @@ const projectRoot = join(__dirname, "..");
 
 const doc = {
   info: {
-    title: "EmailGeneration Service",
-    description: "Generates personalized cold sales emails using Claude AI",
+    title: "Email Generation Service",
+    description: "AI-powered cold email generation service",
     version: "1.0.0",
   },
-  host: process.env.SERVICE_URL || "http://localhost:3005",
-  basePath: "/",
-  schemes: ["https"],
+  servers: [
+    { url: process.env.SERVICE_URL || "http://localhost:3000" },
+  ],
 };
 
 const outputFile = join(projectRoot, "openapi.json");
