@@ -4,7 +4,7 @@ import { db } from "../db/index.js";
 import { emailGenerations } from "../db/schema.js";
 import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
 import { generateEmail, GenerateEmailParams } from "../lib/anthropic-client.js";
-import { getByokKey } from "../lib/keys-client.js";
+import { getByokKey } from "../lib/key-client.js";
 import { ensureOrganization, createRun, updateRun, addCosts } from "../lib/runs-client.js";
 
 const router = Router();
@@ -92,7 +92,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       return res.status(400).json({ error: "clientCompanyName required" });
     }
 
-    // Get Anthropic API key from keys-service
+    // Get Anthropic API key from key-service
     const anthropicApiKey = await getByokKey(req.clerkOrgId!, "anthropic");
 
     // Generate email with all available data

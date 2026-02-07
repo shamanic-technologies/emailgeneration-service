@@ -63,7 +63,7 @@ vi.mock("../../src/db/schema.js", () => ({
   emailGenerations: { id: { name: "id" } },
 }));
 
-vi.mock("../../src/lib/keys-client.js", () => ({
+vi.mock("../../src/lib/key-client.js", () => ({
   getByokKey: vi.fn().mockResolvedValue("fake-anthropic-key"),
 }));
 
