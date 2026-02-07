@@ -254,7 +254,7 @@ function buildSignature(brandUrl: string): { html: string; text: string } {
 </table>
 ${brandLine ? `<p style="margin:12px 0 0;font-size:11px;color:#9ca3af;font-style:italic">${brandLine}</p>` : ""}
 <p style="margin:6px 0 0;font-size:11px;color:#b5b5b5">
-  <a href="https://growthagency.dev/unsubscribe" style="color:#b5b5b5;text-decoration:underline">Unsubscribe</a> to stop receiving sales cold emails from us
+  <a href="{{{pm:unsubscribe}}}" style="color:#b5b5b5;text-decoration:underline">Unsubscribe</a> to stop receiving sales cold emails from us
 </p>`;
 
   const text = `
@@ -262,7 +262,7 @@ ${brandLine ? `<p style="margin:12px 0 0;font-size:11px;color:#9ca3af;font-style
 Kevin Lourd
 Growth Agency | GrowthAgency.dev
 ${brandLineText ? `\n${brandLineText}` : ""}
-Unsubscribe: https://growthagency.dev/unsubscribe`;
+Unsubscribe: {{{pm:unsubscribe}}}`;
 
   return { html, text };
 }
