@@ -8,7 +8,7 @@ const router = Router();
 /**
  * POST /stats/by-model - Get email generation stats grouped by model
  * No auth — internal network trust (used by campaign-service leaderboard)
- * Body: { runIds: string[], clerkOrgId?: string, appId?: string, brandId?: string, campaignId?: string }
+ * Body: { runIds: string[], clerkOrgId?: string, appId: string, brandId: string, campaignId: string }
  */
 router.post("/stats/by-model", async (req, res) => {
   // #swagger.tags = ['Stats']
@@ -23,23 +23,29 @@ router.post("/stats/by-model", async (req, res) => {
     const { runIds, clerkOrgId, appId, brandId, campaignId } = req.body as {
       runIds: string[];
       clerkOrgId?: string;
-      appId?: string;
-      brandId?: string;
-      campaignId?: string;
+      appId: string;
+      brandId: string;
+      campaignId: string;
     };
 
     if (!runIds || !Array.isArray(runIds)) {
       return res.status(400).json({ error: "runIds array required" });
     }
 
+    if (!appId || !brandId || !campaignId) {
+      return res.status(400).json({ error: "appId, brandId, and campaignId are required" });
+    }
+
     if (runIds.length === 0) {
       return res.json({ stats: [] });
     }
 
-    const conditions: SQL[] = [inArray(emailGenerations.runId, runIds)];
-    if (appId) conditions.push(eq(emailGenerations.appId, appId));
-    if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
-    if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));
+    const conditions: SQL[] = [
+      inArray(emailGenerations.runId, runIds),
+      eq(emailGenerations.appId, appId),
+      eq(emailGenerations.brandId, brandId),
+      eq(emailGenerations.campaignId, campaignId),
+    ];
 
     // If clerkOrgId provided, resolve to internal orgId via join
     if (clerkOrgId) {
