@@ -5,7 +5,9 @@
     "dockerfilePath": "./Dockerfile",
     "watchPatterns": [
       "/src/**",
+      "/scripts/**",
       "/drizzle/**",
+      "/Dockerfile",
       "/pnpm-lock.yaml",
       "/package.json"
     ]

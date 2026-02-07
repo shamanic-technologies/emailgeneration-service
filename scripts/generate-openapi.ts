@@ -13,7 +13,7 @@ const doc = {
     version: "1.0.0",
   },
   servers: [
-    { url: process.env.SERVICE_URL || "http://localhost:3000" },
+    { url: process.env.EMAIL_GENERATION_SERVICE_URL || "https://email-generation.mcpfactory.org" },
   ],
 };
 
