@@ -47,7 +47,7 @@ Copy `.env.example` to `.env` and configure:
 ```env
 EMAILGENERATION_SERVICE_DATABASE_URL='postgresql://...'
 SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
-KEYS_SERVICE_URL='http://localhost:3001'
+KEY_SERVICE_URL='http://localhost:3001'
 PORT=3005
 ```
 
