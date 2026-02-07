@@ -49,6 +49,11 @@ export const emailGenerations = pgTable(
     clientCompanyName: text("client_company_name"),
     clientCompanyDescription: text("client_company_description"),
 
+    // External references
+    appId: text("app_id").notNull(),
+    brandId: text("brand_id").notNull(),
+    campaignId: text("campaign_id").notNull(),
+
     // Link to runs-service generation run for cost tracking
     generationRunId: text("generation_run_id"),
 
