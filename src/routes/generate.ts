@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { eq, and } from "drizzle-orm";
+import { eq, and, inArray, type SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { emailGenerations } from "../db/schema.js";
+import { emailGenerations, orgs } from "../db/schema.js";
 import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
 import { generateEmail, GenerateEmailParams } from "../lib/anthropic-client.js";
 import { getByokKey } from "../lib/key-client.js";
@@ -22,6 +22,9 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     schema: {
       runId: 'string',
       apolloEnrichmentId: 'string',
+      appId: 'string',
+      brandId: 'string',
+      campaignId: 'string',
       leadFirstName: 'string',
       leadLastName: 'string',
       leadTitle: 'string',
@@ -53,6 +56,10 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     const {
       runId,
       apolloEnrichmentId,
+      // External references
+      appId,
+      brandId,
+      campaignId,
       // Lead person info
       leadFirstName,
       leadLastName,
@@ -82,6 +89,10 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
 
     if (!runId || !apolloEnrichmentId) {
       return res.status(400).json({ error: "runId and apolloEnrichmentId are required" });
+    }
+
+    if (!appId || !brandId || !campaignId) {
+      return res.status(400).json({ error: "appId, brandId, and campaignId are required" });
     }
 
     if (!leadFirstName || !leadCompanyName) {
@@ -133,6 +144,9 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         orgId: req.orgId!,
         runId,
         apolloEnrichmentId,
+        appId,
+        brandId,
+        campaignId,
         leadFirstName,
         leadLastName,
         leadCompany: leadCompanyName,
@@ -270,11 +284,16 @@ router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
   /* #swagger.parameters['body'] = {
     in: 'body',
     required: true,
-    schema: { runIds: ['string'] }
+    schema: { runIds: ['string'], appId: 'string', brandId: 'string', campaignId: 'string' }
   } */
   // #swagger.responses[200] = { description: 'Aggregated stats', schema: { stats: { emailsGenerated: 0 } } }
   try {
-    const { runIds } = req.body as { runIds: string[] };
+    const { runIds, appId, brandId, campaignId } = req.body as {
+      runIds: string[];
+      appId?: string;
+      brandId?: string;
+      campaignId?: string;
+    };
 
     if (!runIds || !Array.isArray(runIds)) {
       return res.status(400).json({ error: "runIds array required" });
@@ -284,13 +303,17 @@ router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
       return res.json({ stats: { emailsGenerated: 0 } });
     }
 
+    const conditions: SQL[] = [
+      inArray(emailGenerations.runId, runIds),
+      eq(emailGenerations.orgId, req.orgId!),
+    ];
+    if (appId) conditions.push(eq(emailGenerations.appId, appId));
+    if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
+    if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));
+
     // Count email generations
     const generations = await db.query.emailGenerations.findMany({
-      where: (g, { and, eq, inArray }) =>
-        and(
-          inArray(g.runId, runIds),
-          eq(g.orgId, req.orgId!)
-        ),
+      where: and(...conditions),
       columns: { id: true },
     });
 
