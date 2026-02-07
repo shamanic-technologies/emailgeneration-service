@@ -112,6 +112,9 @@ describe("Email generation cost tracking", () => {
       .send({
         runId: "run-parent-123",
         apolloEnrichmentId: "enrich-123",
+        appId: "app-1",
+        brandId: "brand-1",
+        campaignId: "campaign-1",
         leadFirstName: "John",
         leadCompanyName: "Acme Corp",
         clientCompanyName: "MyCompany",
@@ -135,6 +138,9 @@ describe("Email generation cost tracking", () => {
       .send({
         runId: "run-parent-123",
         apolloEnrichmentId: "enrich-123",
+        appId: "app-1",
+        brandId: "brand-1",
+        campaignId: "campaign-1",
         leadFirstName: "John",
         leadCompanyName: "Acme Corp",
         clientCompanyName: "MyCompany",
@@ -166,6 +172,9 @@ describe("Email generation cost tracking", () => {
       .send({
         runId: "run-parent-123",
         apolloEnrichmentId: "enrich-123",
+        appId: "app-1",
+        brandId: "brand-1",
+        campaignId: "campaign-1",
         leadFirstName: "John",
         leadCompanyName: "Acme Corp",
         clientCompanyName: "MyCompany",
@@ -188,6 +197,9 @@ describe("Email generation cost tracking", () => {
       .send({
         runId: "campaign-run-abc",
         apolloEnrichmentId: "enrich-123",
+        appId: "app-1",
+        brandId: "brand-1",
+        campaignId: "campaign-1",
         leadFirstName: "John",
         leadCompanyName: "Acme Corp",
         clientCompanyName: "MyCompany",
@@ -217,6 +229,9 @@ describe("Email generation cost tracking", () => {
       .send({
         runId: "run-parent-123",
         apolloEnrichmentId: "enrich-123",
+        appId: "app-1",
+        brandId: "brand-1",
+        campaignId: "campaign-1",
         leadFirstName: "John",
         leadCompanyName: "Acme Corp",
         clientCompanyName: "MyCompany",
