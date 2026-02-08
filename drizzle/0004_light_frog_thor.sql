@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "idx_emailgen_campaign" ON "email_generations" USING btree ("campaign_id");

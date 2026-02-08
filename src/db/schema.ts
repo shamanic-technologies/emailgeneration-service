@@ -77,6 +77,7 @@ export const emailGenerations = pgTable(
     index("idx_emailgen_org").on(table.orgId),
     index("idx_emailgen_run").on(table.runId),
     index("idx_emailgen_enrichment").on(table.apolloEnrichmentId),
+    index("idx_emailgen_campaign").on(table.campaignId),
   ]
 );
 

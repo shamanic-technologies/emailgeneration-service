@@ -180,23 +180,36 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
 });
 
 /**
- * GET /generations/:runId - Get all generations for a run
+ * GET /generations - List generations with filters
+ * Query params: runId, campaignId, appId, brandId (at least one required)
  */
-router.get("/generations/:runId", serviceAuth, async (req: AuthenticatedRequest, res) => {
+router.get("/generations", serviceAuth, async (req: AuthenticatedRequest, res) => {
   try {
-    const { runId } = req.params;
+    const { runId, campaignId, appId, brandId } = req.query as {
+      runId?: string;
+      campaignId?: string;
+      appId?: string;
+      brandId?: string;
+    };
+
+    if (!runId && !campaignId && !appId && !brandId) {
+      return res.status(400).json({ error: "At least one filter required: runId, campaignId, appId, or brandId" });
+    }
+
+    const conditions: SQL[] = [eq(emailGenerations.orgId, req.orgId!)];
+    if (runId) conditions.push(eq(emailGenerations.runId, runId));
+    if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));
+    if (appId) conditions.push(eq(emailGenerations.appId, appId));
+    if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
 
     const generations = await db.query.emailGenerations.findMany({
-      where: (gens, { eq, and }) =>
-        and(
-          eq(gens.runId, runId),
-          eq(gens.orgId, req.orgId!)
-        ),
+      where: and(...conditions),
+      orderBy: (gens, { desc }) => [desc(gens.createdAt)],
     });
 
     res.json({ generations });
   } catch (error) {
-    console.error("Get generations error:", error);
+    console.error("List generations error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 });
