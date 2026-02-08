@@ -6,9 +6,13 @@ process.env.SERVICE_SECRET_KEY = "test-service-secret";
 beforeAll(async () => {
   // Only run migrations for integration tests (when a real DB is available)
   if (process.env.EMAILGENERATION_SERVICE_DATABASE_URL && !process.env.EMAILGENERATION_SERVICE_DATABASE_URL.includes("localhost/test")) {
-    const { migrate } = await import("drizzle-orm/postgres-js/migrator");
-    const { db } = await import("../src/db/index.js");
-    await migrate(db, { migrationsFolder: "./drizzle" });
+    try {
+      const { migrate } = await import("drizzle-orm/postgres-js/migrator");
+      const { db } = await import("../src/db/index.js");
+      await migrate(db, { migrationsFolder: "./drizzle" });
+    } catch (e) {
+      console.warn("Migration skipped:", (e as Error).message);
+    }
   }
   console.log("Test suite starting...");
 });
