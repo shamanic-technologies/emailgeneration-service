@@ -5,7 +5,7 @@ import { emailGenerations, orgs } from "../db/schema.js";
 import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
 import { generateEmail, GenerateEmailParams } from "../lib/anthropic-client.js";
 import { getByokKey } from "../lib/key-client.js";
-import { ensureOrganization, createRun, updateRun, addCosts } from "../lib/runs-client.js";
+import { createRun, updateRun, addCosts } from "../lib/runs-client.js";
 import { GenerateRequestSchema, StatsRequestSchema } from "../schemas.js";
 
 const router = Router();
@@ -129,9 +129,11 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
 
     // Track run + costs in runs-service
     try {
-      const runsOrgId = await ensureOrganization(req.clerkOrgId!);
       const genRun = await createRun({
-        organizationId: runsOrgId,
+        clerkOrgId: req.clerkOrgId!,
+        appId: appId || "mcpfactory",
+        brandId,
+        campaignId,
         serviceName: "emailgeneration-service",
         taskName: "single-generation",
         parentRunId: runId,
