@@ -32,6 +32,9 @@ export async function insertTestEmailGeneration(
     apolloEnrichmentId?: string;
     subject?: string;
     bodyText?: string;
+    appId?: string;
+    brandId?: string;
+    campaignId?: string;
   } = {}
 ) {
   const [emailGen] = await db
@@ -42,6 +45,9 @@ export async function insertTestEmailGeneration(
       apolloEnrichmentId: data.apolloEnrichmentId || `test-enrichment-${Date.now()}`,
       subject: data.subject || "Test Subject",
       bodyText: data.bodyText || "Test body content",
+      appId: data.appId || "test-app",
+      brandId: data.brandId || "test-brand",
+      campaignId: data.campaignId || "test-campaign",
     })
     .returning();
   return emailGen;

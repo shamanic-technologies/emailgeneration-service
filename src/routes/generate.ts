@@ -279,35 +279,33 @@ router.get("/generations/by-enrichment/:apolloEnrichmentId", serviceAuth, async 
  */
 router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
   // #swagger.tags = ['Stats']
-  // #swagger.summary = 'Get aggregated stats for multiple run IDs'
+  // #swagger.summary = 'Get aggregated stats by filters'
   // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
   /* #swagger.parameters['body'] = {
     in: 'body',
     required: true,
-    schema: { runIds: ['string'], appId: 'string (optional)', brandId: 'string (optional)', campaignId: 'string (optional)' }
+    schema: { runIds: ['string (optional)'], appId: 'string (optional)', brandId: 'string (optional)', campaignId: 'string (optional)' }
   } */
   // #swagger.responses[200] = { description: 'Aggregated stats', schema: { stats: { emailsGenerated: 0 } } }
   // #swagger.responses[400] = { description: 'Missing required fields' }
   try {
     const { runIds, appId, brandId, campaignId } = req.body as {
-      runIds: string[];
+      runIds?: string[];
       appId?: string;
       brandId?: string;
       campaignId?: string;
     };
 
-    if (!runIds || !Array.isArray(runIds)) {
-      return res.status(400).json({ error: "runIds array required" });
-    }
+    const hasRunIds = Array.isArray(runIds) && runIds.length > 0;
 
-    if (runIds.length === 0) {
-      return res.json({ stats: { emailsGenerated: 0 } });
+    if (!hasRunIds && !appId && !brandId && !campaignId) {
+      return res.status(400).json({ error: "At least one filter required: runIds, appId, brandId, or campaignId" });
     }
 
     const conditions: SQL[] = [
-      inArray(emailGenerations.runId, runIds),
       eq(emailGenerations.orgId, req.orgId!),
     ];
+    if (hasRunIds) conditions.push(inArray(emailGenerations.runId, runIds));
     if (appId) conditions.push(eq(emailGenerations.appId, appId));
     if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
     if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));
