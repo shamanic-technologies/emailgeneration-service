@@ -143,7 +143,7 @@ registry.registerPath({
 });
 
 // ---------------------------------------------------------------------------
-// GET /generations/:runId
+// GET /generations?runId&campaignId&appId&brandId
 // ---------------------------------------------------------------------------
 const GenerationsListResponseSchema = registry.register(
   "GenerationsListResponse",
@@ -156,12 +156,17 @@ const GenerationsListResponseSchema = registry.register(
 
 registry.registerPath({
   method: "get",
-  path: "/generations/{runId}",
+  path: "/generations",
   tags: ["Email Generation"],
-  summary: "Get all generations for a run",
+  summary: "List generations with filters",
   request: {
     headers: z.object({ "x-clerk-org-id": z.string() }),
-    params: z.object({ runId: z.string() }),
+    query: z.object({
+      runId: z.string().optional(),
+      campaignId: z.string().optional(),
+      appId: z.string().optional(),
+      brandId: z.string().optional(),
+    }),
   },
   responses: {
     200: {
@@ -169,6 +174,10 @@ registry.registerPath({
       content: {
         "application/json": { schema: GenerationsListResponseSchema },
       },
+    },
+    400: {
+      description: "At least one filter required",
+      content: { "application/json": { schema: ErrorResponseSchema } },
     },
   },
 });
