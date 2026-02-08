@@ -2,31 +2,22 @@ import { Router } from "express";
 import { db } from "../db/index.js";
 import { emailGenerations, orgs } from "../db/schema.js";
 import { and, eq, inArray, sql, type SQL } from "drizzle-orm";
+import { StatsByModelRequestSchema } from "../schemas.js";
 
 const router = Router();
 
 /**
  * POST /stats/by-model - Get email generation stats grouped by model
  * No auth — internal network trust (used by campaign-service leaderboard)
- * Body: { runIds?: string[], clerkOrgId?: string, appId?: string, brandId?: string, campaignId?: string }
  */
 router.post("/stats/by-model", async (req, res) => {
-  // #swagger.tags = ['Stats']
-  // #swagger.summary = 'Get email generation stats grouped by model (internal)'
-  /* #swagger.parameters['body'] = {
-    in: 'body',
-    required: true,
-    schema: { runIds: ['string (optional)'], clerkOrgId: 'string (optional)', appId: 'string (optional)', brandId: 'string (optional)', campaignId: 'string (optional)' }
-  } */
-  // #swagger.responses[200] = { description: 'Stats grouped by model', schema: { stats: [{ model: 'string', count: 0, runIds: ['string'] }] } }
   try {
-    const { runIds, clerkOrgId, appId, brandId, campaignId } = req.body as {
-      runIds?: string[];
-      clerkOrgId?: string;
-      appId?: string;
-      brandId?: string;
-      campaignId?: string;
-    };
+    const parsed = StatsByModelRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
+    }
+
+    const { runIds, clerkOrgId, appId, brandId, campaignId } = parsed.data;
 
     const hasRunIds = Array.isArray(runIds) && runIds.length > 0;
 
@@ -35,7 +26,7 @@ router.post("/stats/by-model", async (req, res) => {
     }
 
     const conditions: SQL[] = [];
-    if (hasRunIds) conditions.push(inArray(emailGenerations.runId, runIds));
+    if (hasRunIds) conditions.push(inArray(emailGenerations.runId, runIds!));
     if (appId) conditions.push(eq(emailGenerations.appId, appId));
     if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
     if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));

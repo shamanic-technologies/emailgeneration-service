@@ -6,6 +6,7 @@ import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
 import { generateEmail, GenerateEmailParams } from "../lib/anthropic-client.js";
 import { getByokKey } from "../lib/key-client.js";
 import { ensureOrganization, createRun, updateRun, addCosts } from "../lib/runs-client.js";
+import { GenerateRequestSchema, StatsRequestSchema } from "../schemas.js";
 
 const router = Router();
 
@@ -13,66 +14,28 @@ const router = Router();
  * POST /generate - Generate an email for a lead
  */
 router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => {
-  // #swagger.tags = ['Email Generation']
-  // #swagger.summary = 'Generate an email for a lead'
-  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string', description: 'Clerk Organization ID' }
-  /* #swagger.parameters['body'] = {
-    in: 'body',
-    required: true,
-    schema: {
-      runId: 'string',
-      apolloEnrichmentId: 'string',
-      appId: 'string',
-      brandId: 'string',
-      campaignId: 'string',
-      leadFirstName: 'string',
-      leadLastName: 'string',
-      leadTitle: 'string',
-      leadEmail: 'string',
-      leadLinkedinUrl: 'string',
-      leadCompanyName: 'string',
-      leadCompanyDomain: 'string',
-      leadCompanyIndustry: 'string',
-      leadCompanySize: 'string',
-      leadCompanyRevenueUsd: 'string',
-      clientCompanyName: 'string',
-      clientBrandUrl: 'string',
-      clientCompanyOverview: 'string',
-      clientValueProposition: 'string',
-      clientTargetAudience: 'string',
-      clientCustomerPainPoints: 'string',
-      clientKeyFeatures: 'string',
-      clientProductDifferentiators: 'string',
-      clientCompetitors: 'string',
-      clientSocialProof: 'string',
-      clientCallToAction: 'string',
-      clientAdditionalContext: 'string'
-    }
-  } */
-  // #swagger.responses[200] = { description: 'Generated email', schema: { id: 'string', subject: 'string', bodyHtml: 'string', bodyText: 'string', tokensInput: 0, tokensOutput: 0 } }
-  // #swagger.responses[400] = { description: 'Missing required fields' }
-  // #swagger.responses[401] = { description: 'Unauthorized' }
   try {
+    const parsed = GenerateRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
+    }
+
     const {
       runId,
       apolloEnrichmentId,
-      // External references
       appId,
       brandId,
       campaignId,
-      // Lead person info
       leadFirstName,
       leadLastName,
       leadTitle,
       leadEmail,
       leadLinkedinUrl,
-      // Lead company info
       leadCompanyName,
       leadCompanyDomain,
       leadCompanyIndustry,
       leadCompanySize,
       leadCompanyRevenueUsd,
-      // Client (our company) info
       clientCompanyName,
       clientBrandUrl,
       clientCompanyOverview,
@@ -85,52 +48,52 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       clientSocialProof,
       clientCallToAction,
       clientAdditionalContext,
-    } = req.body;
-
-    if (!runId || !apolloEnrichmentId) {
-      return res.status(400).json({ error: "runId and apolloEnrichmentId are required" });
-    }
-
-    if (!appId || !brandId || !campaignId) {
-      return res.status(400).json({ error: "appId, brandId, and campaignId are required" });
-    }
-
-    if (!leadFirstName || !leadCompanyName) {
-      return res.status(400).json({ error: "leadFirstName and leadCompanyName required" });
-    }
-
-    if (!clientCompanyName) {
-      return res.status(400).json({ error: "clientCompanyName required" });
-    }
+    } = parsed.data;
 
     // Get Anthropic API key from key-service
     const anthropicApiKey = await getByokKey(req.clerkOrgId!, "anthropic");
 
     // Generate email with all available data
     const params: GenerateEmailParams = {
-      // Lead person info
       leadFirstName,
       leadLastName,
       leadTitle,
       leadEmail,
       leadLinkedinUrl,
-      // Lead company info
       leadCompanyName,
       leadCompanyDomain,
       leadCompanyIndustry,
       leadCompanySize,
       leadCompanyRevenueUsd,
-      // Client (our company) info
       clientCompanyName,
       clientBrandUrl,
       clientCompanyOverview,
       clientValueProposition,
       clientTargetAudience,
-      clientCustomerPainPoints,
-      clientKeyFeatures,
-      clientProductDifferentiators,
-      clientCompetitors,
-      clientSocialProof,
+      clientCustomerPainPoints: Array.isArray(clientCustomerPainPoints)
+        ? clientCustomerPainPoints
+        : clientCustomerPainPoints
+          ? [clientCustomerPainPoints]
+          : undefined,
+      clientKeyFeatures: Array.isArray(clientKeyFeatures)
+        ? clientKeyFeatures
+        : clientKeyFeatures
+          ? [clientKeyFeatures]
+          : undefined,
+      clientProductDifferentiators: Array.isArray(clientProductDifferentiators)
+        ? clientProductDifferentiators
+        : clientProductDifferentiators
+          ? [clientProductDifferentiators]
+          : undefined,
+      clientCompetitors: Array.isArray(clientCompetitors)
+        ? clientCompetitors
+        : clientCompetitors
+          ? [clientCompetitors]
+          : undefined,
+      clientSocialProof:
+        typeof clientSocialProof === "string"
+          ? undefined
+          : clientSocialProof,
       clientCallToAction,
       clientAdditionalContext,
     };
@@ -220,10 +183,6 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
  * GET /generations/:runId - Get all generations for a run
  */
 router.get("/generations/:runId", serviceAuth, async (req: AuthenticatedRequest, res) => {
-  // #swagger.tags = ['Email Generation']
-  // #swagger.summary = 'Get all generations for a run'
-  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
-  // #swagger.responses[200] = { description: 'List of generations' }
   try {
     const { runId } = req.params;
 
@@ -246,11 +205,6 @@ router.get("/generations/:runId", serviceAuth, async (req: AuthenticatedRequest,
  * GET /generations/by-enrichment/:apolloEnrichmentId - Get generation by enrichment ID
  */
 router.get("/generations/by-enrichment/:apolloEnrichmentId", serviceAuth, async (req: AuthenticatedRequest, res) => {
-  // #swagger.tags = ['Email Generation']
-  // #swagger.summary = 'Get generation by enrichment ID'
-  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
-  // #swagger.responses[200] = { description: 'Email generation' }
-  // #swagger.responses[404] = { description: 'Generation not found' }
   try {
     const { apolloEnrichmentId } = req.params;
 
@@ -275,26 +229,15 @@ router.get("/generations/by-enrichment/:apolloEnrichmentId", serviceAuth, async 
 
 /**
  * POST /stats - Get aggregated stats for multiple run IDs
- * Body: { runIds: string[] }
  */
 router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
-  // #swagger.tags = ['Stats']
-  // #swagger.summary = 'Get aggregated stats by filters'
-  // #swagger.parameters['X-Clerk-Org-Id'] = { in: 'header', required: true, type: 'string' }
-  /* #swagger.parameters['body'] = {
-    in: 'body',
-    required: true,
-    schema: { runIds: ['string (optional)'], appId: 'string (optional)', brandId: 'string (optional)', campaignId: 'string (optional)' }
-  } */
-  // #swagger.responses[200] = { description: 'Aggregated stats', schema: { stats: { emailsGenerated: 0 } } }
-  // #swagger.responses[400] = { description: 'Missing required fields' }
   try {
-    const { runIds, appId, brandId, campaignId } = req.body as {
-      runIds?: string[];
-      appId?: string;
-      brandId?: string;
-      campaignId?: string;
-    };
+    const parsed = StatsRequestSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
+    }
+
+    const { runIds, appId, brandId, campaignId } = parsed.data;
 
     const hasRunIds = Array.isArray(runIds) && runIds.length > 0;
 
@@ -305,7 +248,7 @@ router.post("/stats", serviceAuth, async (req: AuthenticatedRequest, res) => {
     const conditions: SQL[] = [
       eq(emailGenerations.orgId, req.orgId!),
     ];
-    if (hasRunIds) conditions.push(inArray(emailGenerations.runId, runIds));
+    if (hasRunIds) conditions.push(inArray(emailGenerations.runId, runIds!));
     if (appId) conditions.push(eq(emailGenerations.appId, appId));
     if (brandId) conditions.push(eq(emailGenerations.brandId, brandId));
     if (campaignId) conditions.push(eq(emailGenerations.campaignId, campaignId));

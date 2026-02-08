@@ -1,29 +1,24 @@
-import swaggerAutogen from "swagger-autogen";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { OpenApiGeneratorV3 } from "@asteasolutions/zod-to-openapi";
+import { registry } from "../src/schemas.js";
+import * as fs from "fs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const projectRoot = join(__dirname, "..");
+const generator = new OpenApiGeneratorV3(registry.definitions);
 
-const doc = {
+const document = generator.generateDocument({
+  openapi: "3.0.0",
   info: {
     title: "Email Generation Service",
     description: "AI-powered cold email generation service",
     version: "1.0.0",
   },
   servers: [
-    { url: process.env.EMAIL_GENERATION_SERVICE_URL || "https://email-generation.mcpfactory.org" },
+    {
+      url:
+        process.env.EMAIL_GENERATION_SERVICE_URL ||
+        "https://email-generation.mcpfactory.org",
+    },
   ],
-};
-
-const outputFile = join(projectRoot, "openapi.json");
-const routes = [
-  join(projectRoot, "src/routes/health.ts"),
-  join(projectRoot, "src/routes/generate.ts"),
-  join(projectRoot, "src/routes/stats.ts"),
-];
-
-swaggerAutogen({ openapi: "3.0.0" })(outputFile, routes, doc).then(() => {
-  console.log("openapi.json generated");
 });
+
+fs.writeFileSync("openapi.json", JSON.stringify(document, null, 2));
+console.log("Generated openapi.json");
