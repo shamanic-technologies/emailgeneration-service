@@ -104,6 +104,18 @@ export interface SummaryBreakdown {
 
 // ─── HTTP helpers ────────────────────────────────────────────────────────────
 
+const TRANSIENT_STATUS_CODES = new Set([500, 502, 503, 504]);
+const MAX_RETRIES = 3;
+const BASE_DELAY_MS = 500;
+
+function isTransientError(status: number): boolean {
+  return TRANSIENT_STATUS_CODES.has(status);
+}
+
+async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function runsRequest<T>(
   path: string,
   options: { method?: string; body?: unknown } = {}
@@ -115,18 +127,34 @@ async function runsRequest<T>(
     "X-API-Key": RUNS_SERVICE_API_KEY,
   };
 
-  const response = await fetch(`${RUNS_SERVICE_URL}${path}`, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined,
-  });
+  let lastError: Error | undefined;
 
-  if (!response.ok) {
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    if (attempt > 0) {
+      const delay = BASE_DELAY_MS * 2 ** (attempt - 1);
+      console.warn(`[runs-client] Retry ${attempt}/${MAX_RETRIES} for ${method} ${path} in ${delay}ms`);
+      await sleep(delay);
+    }
+
+    const response = await fetch(`${RUNS_SERVICE_URL}${path}`, {
+      method,
+      headers,
+      body: body ? JSON.stringify(body) : undefined,
+    });
+
+    if (response.ok) {
+      return response.json() as Promise<T>;
+    }
+
     const errorText = await response.text();
-    throw new Error(`runs-service ${method} ${path} failed: ${response.status} - ${errorText}`);
+    lastError = new Error(`runs-service ${method} ${path} failed: ${response.status} - ${errorText}`);
+
+    if (!isTransientError(response.status)) {
+      throw lastError;
+    }
   }
 
-  return response.json() as Promise<T>;
+  throw lastError!;
 }
 
 // ─── Public API ──────────────────────────────────────────────────────────────
