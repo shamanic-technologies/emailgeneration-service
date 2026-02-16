@@ -8,6 +8,7 @@ import { migrate } from "drizzle-orm/postgres-js/migrator";
 import { db } from "./db/index.js";
 import healthRoutes from "./routes/health.js";
 import generateRoutes from "./routes/generate.js";
+import contentRoutes from "./routes/content.js";
 import statsRoutes from "./routes/stats.js";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -33,6 +34,7 @@ app.get("/openapi.json", (_req, res) => {
 // Routes
 app.use(healthRoutes);
 app.use(generateRoutes);
+app.use(contentRoutes);
 app.use(statsRoutes);
 
 // 404 handler

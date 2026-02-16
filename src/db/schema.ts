@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, uniqueIndex, index, integer, jsonb } from "drizzle-orm/pg-core";
+import { pgTable, uuid, text, timestamp, uniqueIndex, index, integer, jsonb, boolean } from "drizzle-orm/pg-core";
 
 // Local users table (maps to Clerk)
 export const users = pgTable(
@@ -81,9 +81,59 @@ export const emailGenerations = pgTable(
   ]
 );
 
+// Content generations (generic prompt-based)
+export const contentGenerations = pgTable(
+  "content_generations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    orgId: uuid("org_id")
+      .notNull()
+      .references(() => orgs.id, { onDelete: "cascade" }),
+    appId: text("app_id").notNull(),
+    type: text("type").notNull(), // "email" | "calendar"
+    keyMode: text("key_mode").notNull(), // "byok" | "app"
+
+    // Input
+    prompt: text("prompt").notNull(),
+    variables: jsonb("variables"), // string[] | null
+    includeFooter: boolean("include_footer"),
+
+    // Output — email
+    subject: text("subject"),
+    bodyHtml: text("body_html"),
+    bodyText: text("body_text"),
+
+    // Output — calendar
+    title: text("title"),
+    description: text("description"),
+    location: text("location"),
+
+    // Cost tracking
+    generationRunId: text("generation_run_id"),
+    parentRunId: text("parent_run_id"),
+
+    // Model metadata
+    model: text("model").notNull().default("claude-opus-4-6"),
+    tokensInput: integer("tokens_input"),
+    tokensOutput: integer("tokens_output"),
+
+    // Raw data for debugging
+    promptRaw: text("prompt_raw"),
+    responseRaw: jsonb("response_raw"),
+
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("idx_contentgen_org").on(table.orgId),
+    index("idx_contentgen_app").on(table.appId),
+  ]
+);
+
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
 export type Org = typeof orgs.$inferSelect;
 export type NewOrg = typeof orgs.$inferInsert;
 export type EmailGeneration = typeof emailGenerations.$inferSelect;
 export type NewEmailGeneration = typeof emailGenerations.$inferInsert;
+export type ContentGeneration = typeof contentGenerations.$inferSelect;
+export type NewContentGeneration = typeof contentGenerations.$inferInsert;

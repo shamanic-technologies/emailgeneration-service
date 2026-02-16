@@ -218,6 +218,122 @@ registry.registerPath({
 });
 
 // ---------------------------------------------------------------------------
+// POST /generate/content
+// ---------------------------------------------------------------------------
+export const GenerateContentRequestSchema = registry.register(
+  "GenerateContentRequest",
+  z
+    .object({
+      appId: z.string(),
+      prompt: z.string(),
+      variables: z.array(z.string()).optional(),
+      includeFooter: z.boolean().optional().default(false),
+      keyMode: z.enum(["byok", "app"]),
+      parentRunId: z.string().optional(),
+    })
+    .openapi("GenerateContentRequest")
+);
+
+const GenerateContentResponseSchema = registry.register(
+  "GenerateContentResponse",
+  z
+    .object({
+      id: z.string(),
+      subject: z.string(),
+      bodyHtml: z.string(),
+      bodyText: z.string(),
+      tokensInput: z.number(),
+      tokensOutput: z.number(),
+    })
+    .openapi("GenerateContentResponse")
+);
+
+registry.registerPath({
+  method: "post",
+  path: "/generate/content",
+  tags: ["Content Generation"],
+  summary: "Generate email content from a free-text prompt",
+  request: {
+    headers: z.object({ "x-clerk-org-id": z.string() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: GenerateContentRequestSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Generated email content",
+      content: { "application/json": { schema: GenerateContentResponseSchema } },
+    },
+    400: {
+      description: "Invalid request",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+    401: {
+      description: "Unauthorized",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+  },
+});
+
+// ---------------------------------------------------------------------------
+// POST /generate/calendar
+// ---------------------------------------------------------------------------
+export const GenerateCalendarRequestSchema = registry.register(
+  "GenerateCalendarRequest",
+  z
+    .object({
+      appId: z.string(),
+      prompt: z.string(),
+      keyMode: z.enum(["byok", "app"]),
+      parentRunId: z.string().optional(),
+    })
+    .openapi("GenerateCalendarRequest")
+);
+
+const GenerateCalendarResponseSchema = registry.register(
+  "GenerateCalendarResponse",
+  z
+    .object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+      location: z.string().nullable(),
+      tokensInput: z.number(),
+      tokensOutput: z.number(),
+    })
+    .openapi("GenerateCalendarResponse")
+);
+
+registry.registerPath({
+  method: "post",
+  path: "/generate/calendar",
+  tags: ["Content Generation"],
+  summary: "Generate calendar event fields from a free-text prompt",
+  request: {
+    headers: z.object({ "x-clerk-org-id": z.string() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: GenerateCalendarRequestSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Generated calendar event",
+      content: { "application/json": { schema: GenerateCalendarResponseSchema } },
+    },
+    400: {
+      description: "Invalid request",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+    401: {
+      description: "Unauthorized",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+  },
+});
+
+// ---------------------------------------------------------------------------
 // POST /stats
 // ---------------------------------------------------------------------------
 export const StatsRequestSchema = registry.register(

@@ -36,6 +36,13 @@
       "when": 1770523536865,
       "tag": "0004_light_frog_thor",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1771250002322,
+      "tag": "0005_chubby_gambit",
+      "breakpoints": true
     }
   ]
 }
