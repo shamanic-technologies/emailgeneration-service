@@ -67,7 +67,6 @@ vi.mock("../../src/db/index.js", () => ({
           appId: "app-1",
           type: "email",
           prompt: MOCK_PROMPT_TEMPLATE,
-          variables: ["recipientName", "senderName"],
         }),
       },
     },

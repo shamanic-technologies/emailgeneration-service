@@ -17,7 +17,7 @@ router.put("/prompts", serviceAuth, async (req: AuthenticatedRequest, res) => {
       return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
     }
 
-    const { appId, type, prompt, variables } = parsed.data;
+    const { appId, type, prompt } = parsed.data;
 
     // Upsert: insert or update on (appId, type) conflict
     const existing = await db.query.prompts.findFirst({
@@ -28,13 +28,13 @@ router.put("/prompts", serviceAuth, async (req: AuthenticatedRequest, res) => {
     if (existing) {
       [result] = await db
         .update(prompts)
-        .set({ prompt, variables, updatedAt: new Date() })
+        .set({ prompt, updatedAt: new Date() })
         .where(and(eq(prompts.appId, appId), eq(prompts.type, type)))
         .returning();
     } else {
       [result] = await db
         .insert(prompts)
-        .values({ appId, type, prompt, variables })
+        .values({ appId, type, prompt })
         .returning();
     }
 
@@ -42,7 +42,6 @@ router.put("/prompts", serviceAuth, async (req: AuthenticatedRequest, res) => {
       id: result.id,
       appId: result.appId,
       type: result.type,
-      variables: result.variables,
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
     });
@@ -76,7 +75,6 @@ router.get("/prompts", serviceAuth, async (req: AuthenticatedRequest, res) => {
       appId: result.appId,
       type: result.type,
       prompt: result.prompt,
-      variables: result.variables,
       createdAt: result.createdAt.toISOString(),
       updatedAt: result.updatedAt.toISOString(),
     });

@@ -38,17 +38,7 @@ export const emailGenerations = pgTable(
       .references(() => orgs.id, { onDelete: "cascade" }),
     runId: text("run_id").notNull(),
     apolloEnrichmentId: text("apollo_enrichment_id"),
-    promptType: text("prompt_type"), // which stored prompt was used
-
-    // Lead info (for context / dashboard display)
-    leadFirstName: text("lead_first_name"),
-    leadLastName: text("lead_last_name"),
-    leadCompany: text("lead_company"),
-    leadTitle: text("lead_title"),
-
-    // Client info (for context / dashboard display)
-    clientCompanyName: text("client_company_name"),
-    clientCompanyDescription: text("client_company_description"),
+    promptType: text("prompt_type"),
 
     // Full variable data for audit
     variablesRaw: jsonb("variables_raw"),
@@ -93,7 +83,6 @@ export const prompts = pgTable(
     appId: text("app_id").notNull(),
     type: text("type").notNull(), // "email" | "calendar" | custom types
     prompt: text("prompt").notNull(), // template text with {{variables}}
-    variables: jsonb("variables").$type<string[]>().notNull().default([]), // expected variable names
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

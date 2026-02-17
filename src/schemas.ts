@@ -60,7 +60,6 @@ export const UpsertPromptRequestSchema = registry.register(
       appId: z.string(),
       type: z.string().describe("Prompt type, e.g. 'email' or 'calendar'"),
       prompt: z.string().describe("Prompt template text with {{variable}} placeholders"),
-      variables: z.array(z.string()).describe("List of expected variable names used in the prompt"),
     })
     .openapi("UpsertPromptRequest")
 );
@@ -72,7 +71,6 @@ const UpsertPromptResponseSchema = registry.register(
       id: z.string(),
       appId: z.string(),
       type: z.string(),
-      variables: z.array(z.string()),
       createdAt: z.string(),
       updatedAt: z.string(),
     })

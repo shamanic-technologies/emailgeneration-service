@@ -67,7 +67,6 @@ describe("PUT /prompts", () => {
       appId: "my-app",
       type: "email",
       prompt: "Write an email to {{recipient}}",
-      variables: ["recipient"],
       createdAt: NOW,
       updatedAt: NOW,
     }]);
@@ -79,14 +78,12 @@ describe("PUT /prompts", () => {
         appId: "my-app",
         type: "email",
         prompt: "Write an email to {{recipient}}",
-        variables: ["recipient"],
       })
       .expect(200);
 
     expect(res.body.id).toBe("prompt-1");
     expect(res.body.appId).toBe("my-app");
     expect(res.body.type).toBe("email");
-    expect(res.body.variables).toEqual(["recipient"]);
   });
 
   it("updates an existing prompt", async () => {
@@ -95,14 +92,12 @@ describe("PUT /prompts", () => {
       appId: "my-app",
       type: "email",
       prompt: "old prompt",
-      variables: ["old"],
     });
     mockUpdateReturning.mockResolvedValue([{
       id: "prompt-1",
       appId: "my-app",
       type: "email",
       prompt: "new prompt with {{newVar}}",
-      variables: ["newVar"],
       createdAt: NOW,
       updatedAt: new Date("2025-01-16T00:00:00Z"),
     }]);
@@ -114,18 +109,17 @@ describe("PUT /prompts", () => {
         appId: "my-app",
         type: "email",
         prompt: "new prompt with {{newVar}}",
-        variables: ["newVar"],
       })
       .expect(200);
 
-    expect(res.body.variables).toEqual(["newVar"]);
+    expect(res.body.appId).toBe("my-app");
   });
 
   it("returns 400 for missing required fields", async () => {
     await request(app)
       .put("/prompts")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({ appId: "my-app" }) // missing type, prompt, variables
+      .send({ appId: "my-app" }) // missing type, prompt
       .expect(400);
   });
 });
@@ -146,7 +140,6 @@ describe("GET /prompts", () => {
       appId: "my-app",
       type: "email",
       prompt: "Write an email to {{recipient}}",
-      variables: ["recipient"],
       createdAt: NOW,
       updatedAt: NOW,
     });
@@ -157,7 +150,6 @@ describe("GET /prompts", () => {
       .expect(200);
 
     expect(res.body.prompt).toBe("Write an email to {{recipient}}");
-    expect(res.body.variables).toEqual(["recipient"]);
   });
 
   it("returns 404 when prompt not found", async () => {

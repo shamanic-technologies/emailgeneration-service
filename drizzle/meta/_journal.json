@@ -50,6 +50,13 @@
       "when": 1771314179497,
       "tag": "0006_colorful_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771324780165,
+      "tag": "0007_motionless_gargoyle",
+      "breakpoints": true
     }
   ]
 }

@@ -87,7 +87,6 @@ describe("POST /generate (template-based)", () => {
       appId: "my-app",
       type: "email",
       prompt: "Write an email.\n\n## Recipient\n{{recipientInfo}}\n\n## Sender\n{{senderInfo}}",
-      variables: ["recipientInfo", "senderInfo"],
     });
 
     app = createTestApp();
