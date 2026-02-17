@@ -1,9 +1,9 @@
 import { Router } from "express";
 import { eq, and, inArray, type SQL } from "drizzle-orm";
 import { db } from "../db/index.js";
-import { emailGenerations, orgs } from "../db/schema.js";
+import { emailGenerations, prompts } from "../db/schema.js";
 import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
-import { generateEmail, GenerateEmailParams } from "../lib/anthropic-client.js";
+import { generateFromTemplate } from "../lib/anthropic-client.js";
 import { getByokKey } from "../lib/key-client.js";
 import { createRun, updateRun, addCosts } from "../lib/runs-client.js";
 import { GenerateRequestSchema, StatsRequestSchema } from "../schemas.js";
@@ -11,7 +11,7 @@ import { GenerateRequestSchema, StatsRequestSchema } from "../schemas.js";
 const router = Router();
 
 /**
- * POST /generate - Generate an email for a lead
+ * POST /generate — Generate content using a stored prompt template + variables
  */
 router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => {
   try {
@@ -21,84 +21,34 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     }
 
     const {
-      runId,
-      apolloEnrichmentId,
       appId,
+      type,
+      variables,
+      runId,
       brandId,
       campaignId,
-      leadFirstName,
-      leadLastName,
-      leadTitle,
-      leadEmail,
-      leadLinkedinUrl,
-      leadCompanyName,
-      leadCompanyDomain,
-      leadCompanyIndustry,
-      leadCompanySize,
-      leadCompanyRevenueUsd,
-      clientCompanyName,
-      clientBrandUrl,
-      clientCompanyOverview,
-      clientValueProposition,
-      clientTargetAudience,
-      clientCustomerPainPoints,
-      clientKeyFeatures,
-      clientProductDifferentiators,
-      clientCompetitors,
-      clientSocialProof,
-      clientCallToAction,
-      clientAdditionalContext,
+      apolloEnrichmentId,
     } = parsed.data;
 
-    // Get Anthropic API key from key-service
+    // Look up the stored prompt for this app + type
+    const storedPrompt = await db.query.prompts.findFirst({
+      where: and(eq(prompts.appId, appId), eq(prompts.type, type)),
+    });
+
+    if (!storedPrompt) {
+      return res.status(404).json({
+        error: `No prompt found for appId=${appId}, type=${type}. Register one via PUT /prompts first.`,
+      });
+    }
+
+    // Get Anthropic API key
     const anthropicApiKey = await getByokKey(req.clerkOrgId!, "anthropic");
 
-    // Generate email with all available data
-    const params: GenerateEmailParams = {
-      leadFirstName,
-      leadLastName,
-      leadTitle,
-      leadEmail,
-      leadLinkedinUrl,
-      leadCompanyName,
-      leadCompanyDomain,
-      leadCompanyIndustry,
-      leadCompanySize,
-      leadCompanyRevenueUsd,
-      clientCompanyName,
-      clientBrandUrl,
-      clientCompanyOverview,
-      clientValueProposition,
-      clientTargetAudience,
-      clientCustomerPainPoints: Array.isArray(clientCustomerPainPoints)
-        ? clientCustomerPainPoints
-        : clientCustomerPainPoints
-          ? [clientCustomerPainPoints]
-          : undefined,
-      clientKeyFeatures: Array.isArray(clientKeyFeatures)
-        ? clientKeyFeatures
-        : clientKeyFeatures
-          ? [clientKeyFeatures]
-          : undefined,
-      clientProductDifferentiators: Array.isArray(clientProductDifferentiators)
-        ? clientProductDifferentiators
-        : clientProductDifferentiators
-          ? [clientProductDifferentiators]
-          : undefined,
-      clientCompetitors: Array.isArray(clientCompetitors)
-        ? clientCompetitors
-        : clientCompetitors
-          ? [clientCompetitors]
-          : undefined,
-      clientSocialProof:
-        typeof clientSocialProof === "string"
-          ? undefined
-          : clientSocialProof,
-      clientCallToAction,
-      clientAdditionalContext,
-    };
-
-    const result = await generateEmail(anthropicApiKey, params);
+    // Generate using the stored prompt + variable substitution
+    const result = await generateFromTemplate(anthropicApiKey, {
+      promptTemplate: storedPrompt.prompt,
+      variables,
+    });
 
     // Store in database
     const [generation] = await db
@@ -106,16 +56,12 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       .values({
         orgId: req.orgId!,
         runId,
-        apolloEnrichmentId,
+        apolloEnrichmentId: apolloEnrichmentId ?? null,
+        promptType: type,
         appId,
-        brandId,
-        campaignId,
-        leadFirstName,
-        leadLastName,
-        leadCompany: leadCompanyName,
-        leadTitle,
-        clientCompanyName,
-        clientCompanyDescription: clientValueProposition || clientCompanyOverview || "",
+        brandId: brandId ?? "",
+        campaignId: campaignId ?? "",
+        variablesRaw: variables,
         subject: result.subject,
         bodyHtml: result.bodyHtml,
         bodyText: result.bodyText,
@@ -131,7 +77,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     try {
       const genRun = await createRun({
         clerkOrgId: req.clerkOrgId!,
-        appId: appId || "mcpfactory",
+        appId,
         brandId,
         campaignId,
         serviceName: "emailgeneration-service",

@@ -10,6 +10,7 @@ import healthRoutes from "./routes/health.js";
 import generateRoutes from "./routes/generate.js";
 import contentRoutes from "./routes/content.js";
 import statsRoutes from "./routes/stats.js";
+import promptRoutes from "./routes/prompts.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -36,6 +37,7 @@ app.use(healthRoutes);
 app.use(generateRoutes);
 app.use(contentRoutes);
 app.use(statsRoutes);
+app.use(promptRoutes);
 
 // 404 handler
 app.use((req, res) => {

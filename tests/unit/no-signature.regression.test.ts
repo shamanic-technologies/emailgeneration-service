@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from "vitest";
-import { generateEmail } from "../../src/lib/anthropic-client";
+import { generateFromTemplate } from "../../src/lib/anthropic-client";
 
 // Mock the Anthropic SDK
 vi.mock("@anthropic-ai/sdk", () => {
@@ -20,15 +20,17 @@ vi.mock("@anthropic-ai/sdk", () => {
   };
 });
 
-describe("generateEmail should NOT include a signature", () => {
+describe("generateFromTemplate should NOT include a signature", () => {
   const params = {
-    leadFirstName: "John",
-    leadCompanyName: "Acme",
-    clientCompanyName: "Growth Agency",
+    promptTemplate: "Write a cold email to {{recipientName}} from {{senderName}}. Do NOT add any signature block.",
+    variables: {
+      recipientName: "John at Acme",
+      senderName: "Growth Agency",
+    },
   };
 
   it("bodyHtml does not contain signature elements", async () => {
-    const result = await generateEmail("fake-key", params);
+    const result = await generateFromTemplate("fake-key", params);
 
     expect(result.bodyHtml).not.toContain("Kevin Lourd");
     expect(result.bodyHtml).not.toContain("GrowthAgency.dev");
@@ -37,7 +39,7 @@ describe("generateEmail should NOT include a signature", () => {
   });
 
   it("bodyText does not contain signature elements", async () => {
-    const result = await generateEmail("fake-key", params);
+    const result = await generateFromTemplate("fake-key", params);
 
     expect(result.bodyText).not.toContain("Kevin Lourd");
     expect(result.bodyText).not.toContain("GrowthAgency.dev");
