@@ -51,51 +51,73 @@ registry.registerPath({
 });
 
 // ---------------------------------------------------------------------------
-// POST /generate
+// PUT /prompts — Upsert a prompt template for an app
+// ---------------------------------------------------------------------------
+export const UpsertPromptRequestSchema = registry.register(
+  "UpsertPromptRequest",
+  z
+    .object({
+      appId: z.string(),
+      type: z.string().describe("Prompt type, e.g. 'email' or 'calendar'"),
+      prompt: z.string().describe("Prompt template text with {{variable}} placeholders"),
+      variables: z.array(z.string()).describe("List of expected variable names used in the prompt"),
+    })
+    .openapi("UpsertPromptRequest")
+);
+
+const UpsertPromptResponseSchema = registry.register(
+  "UpsertPromptResponse",
+  z
+    .object({
+      id: z.string(),
+      appId: z.string(),
+      type: z.string(),
+      variables: z.array(z.string()),
+      createdAt: z.string(),
+      updatedAt: z.string(),
+    })
+    .openapi("UpsertPromptResponse")
+);
+
+registry.registerPath({
+  method: "put",
+  path: "/prompts",
+  tags: ["Prompts"],
+  summary: "Register or update a prompt template for an app (idempotent)",
+  request: {
+    headers: z.object({ "x-clerk-org-id": z.string() }),
+    body: {
+      required: true,
+      content: { "application/json": { schema: UpsertPromptRequestSchema } },
+    },
+  },
+  responses: {
+    200: {
+      description: "Prompt upserted",
+      content: { "application/json": { schema: UpsertPromptResponseSchema } },
+    },
+    400: {
+      description: "Invalid request",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+  },
+});
+
+// ---------------------------------------------------------------------------
+// POST /generate — Generate content using a stored prompt + variables
 // ---------------------------------------------------------------------------
 export const GenerateRequestSchema = registry.register(
   "GenerateRequest",
   z
     .object({
-      runId: z.string(),
-      apolloEnrichmentId: z.string(),
       appId: z.string(),
-      brandId: z.string(),
-      campaignId: z.string(),
-      // Lead person info
-      leadFirstName: z.string(),
-      leadLastName: z.string().optional(),
-      leadTitle: z.string().optional(),
-      leadEmail: z.string().optional(),
-      leadLinkedinUrl: z.string().optional(),
-      // Lead company info
-      leadCompanyName: z.string(),
-      leadCompanyDomain: z.string().optional(),
-      leadCompanyIndustry: z.string().optional(),
-      leadCompanySize: z.string().optional(),
-      leadCompanyRevenueUsd: z.string().optional(),
-      // Client (our company) info
-      clientCompanyName: z.string(),
-      clientBrandUrl: z.string().optional(),
-      clientCompanyOverview: z.string().optional(),
-      clientValueProposition: z.string().optional(),
-      clientTargetAudience: z.string().optional(),
-      clientCustomerPainPoints: z.union([z.string(), z.array(z.string())]).optional(),
-      clientKeyFeatures: z.union([z.string(), z.array(z.string())]).optional(),
-      clientProductDifferentiators: z.union([z.string(), z.array(z.string())]).optional(),
-      clientCompetitors: z.union([z.string(), z.array(z.string())]).optional(),
-      clientSocialProof: z
-        .union([
-          z.string(),
-          z.object({
-            caseStudies: z.array(z.string()).optional(),
-            testimonials: z.array(z.string()).optional(),
-            results: z.array(z.string()).optional(),
-          }),
-        ])
-        .optional(),
-      clientCallToAction: z.string().optional(),
-      clientAdditionalContext: z.string().optional(),
+      type: z.string().describe("Which stored prompt to use, e.g. 'email' or 'calendar'"),
+      variables: z.record(z.string(), z.string()).describe("Variable values to substitute into the prompt template"),
+      // Tracking / linking
+      runId: z.string(),
+      brandId: z.string().optional(),
+      campaignId: z.string().optional(),
+      apolloEnrichmentId: z.string().optional(),
     })
     .openapi("GenerateRequest")
 );
@@ -118,7 +140,7 @@ registry.registerPath({
   method: "post",
   path: "/generate",
   tags: ["Email Generation"],
-  summary: "Generate an email for a lead",
+  summary: "Generate content using a stored prompt template with variable substitution",
   request: {
     headers: z.object({ "x-clerk-org-id": z.string() }),
     body: {
@@ -128,7 +150,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Generated email",
+      description: "Generated content",
       content: { "application/json": { schema: GenerateResponseSchema } },
     },
     400: {
@@ -137,6 +159,10 @@ registry.registerPath({
     },
     401: {
       description: "Unauthorized",
+      content: { "application/json": { schema: ErrorResponseSchema } },
+    },
+    404: {
+      description: "Prompt not found for this app + type",
       content: { "application/json": { schema: ErrorResponseSchema } },
     },
   },

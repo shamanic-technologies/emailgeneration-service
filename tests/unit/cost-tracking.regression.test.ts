@@ -43,6 +43,10 @@ vi.mock("../../src/middleware/auth.js", () => ({
 
 // Mock the DB — track db.update().set() calls to verify generationRunId linking
 const mockDbSetCalls: Array<Record<string, unknown>> = [];
+
+// Mock prompts lookup to return a stored prompt
+const MOCK_PROMPT_TEMPLATE = "Write an email to {{recipientName}} about {{senderName}}";
+
 vi.mock("../../src/db/index.js", () => ({
   db: {
     insert: vi.fn().mockReturnValue({
@@ -56,11 +60,23 @@ vi.mock("../../src/db/index.js", () => ({
         return { where: vi.fn().mockResolvedValue(undefined) };
       }),
     }),
+    query: {
+      prompts: {
+        findFirst: vi.fn().mockResolvedValue({
+          id: "prompt-1",
+          appId: "app-1",
+          type: "email",
+          prompt: MOCK_PROMPT_TEMPLATE,
+          variables: ["recipientName", "senderName"],
+        }),
+      },
+    },
   },
 }));
 
 vi.mock("../../src/db/schema.js", () => ({
   emailGenerations: { id: { name: "id" } },
+  prompts: { appId: { name: "app_id" }, type: { name: "type" } },
 }));
 
 vi.mock("../../src/lib/key-client.js", () => ({
@@ -71,7 +87,7 @@ vi.mock("../../src/lib/key-client.js", () => ({
 const MOCK_TOKENS_INPUT = 1500;
 const MOCK_TOKENS_OUTPUT = 300;
 vi.mock("../../src/lib/anthropic-client.js", () => ({
-  generateEmail: vi.fn().mockResolvedValue({
+  generateFromTemplate: vi.fn().mockResolvedValue({
     subject: "Test subject",
     bodyHtml: "<p>Test body</p>",
     bodyText: "Test body",
@@ -88,6 +104,13 @@ function createTestApp() {
   app.use(express.json());
   return app;
 }
+
+const VALID_REQUEST = {
+  appId: "app-1",
+  type: "email",
+  variables: { recipientName: "John at Acme", senderName: "MyCompany" },
+  runId: "run-parent-123",
+};
 
 describe("Email generation cost tracking", () => {
   let app: express.Express;
@@ -109,16 +132,7 @@ describe("Email generation cost tracking", () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({
-        runId: "run-parent-123",
-        apolloEnrichmentId: "enrich-123",
-        appId: "app-1",
-        brandId: "brand-1",
-        campaignId: "campaign-1",
-        leadFirstName: "John",
-        leadCompanyName: "Acme Corp",
-        clientCompanyName: "MyCompany",
-      })
+      .send(VALID_REQUEST)
       .expect(200);
 
     // Verify addCosts was called with correct cost names
@@ -135,16 +149,7 @@ describe("Email generation cost tracking", () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({
-        runId: "run-parent-123",
-        apolloEnrichmentId: "enrich-123",
-        appId: "app-1",
-        brandId: "brand-1",
-        campaignId: "campaign-1",
-        leadFirstName: "John",
-        leadCompanyName: "Acme Corp",
-        clientCompanyName: "MyCompany",
-      })
+      .send(VALID_REQUEST)
       .expect(200);
 
     const [, costItems] = mockAddCosts.mock.calls[0];
@@ -169,16 +174,7 @@ describe("Email generation cost tracking", () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({
-        runId: "run-parent-123",
-        apolloEnrichmentId: "enrich-123",
-        appId: "app-1",
-        brandId: "brand-1",
-        campaignId: "campaign-1",
-        leadFirstName: "John",
-        leadCompanyName: "Acme Corp",
-        clientCompanyName: "MyCompany",
-      })
+      .send(VALID_REQUEST)
       .expect(200); // Email still generated despite cost tracking failure
 
     // Must log at error level (not warn) so it shows up in monitoring
@@ -194,16 +190,7 @@ describe("Email generation cost tracking", () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({
-        runId: "campaign-run-abc",
-        apolloEnrichmentId: "enrich-123",
-        appId: "app-1",
-        brandId: "brand-1",
-        campaignId: "campaign-1",
-        leadFirstName: "John",
-        leadCompanyName: "Acme Corp",
-        clientCompanyName: "MyCompany",
-      })
+      .send({ ...VALID_REQUEST, runId: "campaign-run-abc" })
       .expect(200);
 
     expect(mockCreateRun).toHaveBeenCalledWith(
@@ -226,16 +213,7 @@ describe("Email generation cost tracking", () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
-      .send({
-        runId: "run-parent-123",
-        apolloEnrichmentId: "enrich-123",
-        appId: "app-1",
-        brandId: "brand-1",
-        campaignId: "campaign-1",
-        leadFirstName: "John",
-        leadCompanyName: "Acme Corp",
-        clientCompanyName: "MyCompany",
-      })
+      .send(VALID_REQUEST)
       .expect(200);
 
     // generationRunId must be set in the DB even though addCosts failed
