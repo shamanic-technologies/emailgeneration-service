@@ -1,0 +1,2 @@
+ALTER TABLE "email_generations" ADD COLUMN "idempotency_key" text;--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_emailgen_idempotency" ON "email_generations" USING btree ("org_id","idempotency_key");

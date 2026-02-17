@@ -28,7 +28,29 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       brandId,
       campaignId,
       apolloEnrichmentId,
+      idempotencyKey,
     } = parsed.data;
+
+    // Idempotency: return existing generation if key matches
+    if (idempotencyKey) {
+      const existing = await db.query.emailGenerations.findFirst({
+        where: and(
+          eq(emailGenerations.orgId, req.orgId!),
+          eq(emailGenerations.idempotencyKey, idempotencyKey)
+        ),
+      });
+
+      if (existing) {
+        return res.json({
+          id: existing.id,
+          subject: existing.subject ?? "",
+          bodyHtml: existing.bodyHtml ?? "",
+          bodyText: existing.bodyText ?? "",
+          tokensInput: existing.tokensInput ?? 0,
+          tokensOutput: existing.tokensOutput ?? 0,
+        });
+      }
+    }
 
     // Look up the stored prompt for this app + type
     const storedPrompt = await db.query.prompts.findFirst({
@@ -70,6 +92,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         tokensOutput: result.tokensOutput,
         promptRaw: result.promptRaw,
         responseRaw: result.responseRaw,
+        idempotencyKey: idempotencyKey ?? null,
       })
       .returning();
 

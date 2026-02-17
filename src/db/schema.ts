@@ -75,6 +75,9 @@ export const emailGenerations = pgTable(
     promptRaw: text("prompt_raw"),
     responseRaw: jsonb("response_raw"),
 
+    // Idempotency support — caller-supplied key to prevent duplicate generations
+    idempotencyKey: text("idempotency_key"),
+
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -82,6 +85,7 @@ export const emailGenerations = pgTable(
     index("idx_emailgen_run").on(table.runId),
     index("idx_emailgen_enrichment").on(table.apolloEnrichmentId),
     index("idx_emailgen_campaign").on(table.campaignId),
+    uniqueIndex("idx_emailgen_idempotency").on(table.orgId, table.idempotencyKey),
   ]
 );
 
