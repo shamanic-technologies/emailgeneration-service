@@ -118,6 +118,7 @@ export const GenerateRequestSchema = registry.register(
       brandId: z.string().optional(),
       campaignId: z.string().optional(),
       apolloEnrichmentId: z.string().optional(),
+      idempotencyKey: z.string().optional(),
     })
     .openapi("GenerateRequest")
 );

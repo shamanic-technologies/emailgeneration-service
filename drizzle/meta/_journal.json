@@ -50,6 +50,13 @@
       "when": 1771314179497,
       "tag": "0006_colorful_killraven",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1771327573877,
+      "tag": "0007_dry_energizer",
+      "breakpoints": true
     }
   ]
 }
