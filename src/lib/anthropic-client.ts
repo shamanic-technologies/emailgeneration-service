@@ -4,7 +4,7 @@ const MODEL = "claude-opus-4-5";
 
 export interface GenerateFromTemplateParams {
   promptTemplate: string;
-  variables: Record<string, string>;
+  variables: Record<string, unknown>;
 }
 
 export interface GenerateResult {
@@ -19,15 +19,30 @@ export interface GenerateResult {
 }
 
 /**
+ * Coerce an unknown value to a string for template substitution.
+ * - strings pass through
+ * - arrays of strings are comma-joined
+ * - everything else is JSON-stringified
+ */
+export function coerceToString(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && value.every((v) => typeof v === "string")) {
+    return value.join(", ");
+  }
+  return JSON.stringify(value);
+}
+
+/**
  * Substitute {{variable}} placeholders in a prompt template with values.
+ * Non-string values are coerced via coerceToString.
  */
 export function substituteVariables(
   template: string,
-  variables: Record<string, string>
+  variables: Record<string, unknown>
 ): string {
   let result = template;
   for (const [key, value] of Object.entries(variables)) {
-    result = result.replaceAll(`{{${key}}}`, value);
+    result = result.replaceAll(`{{${key}}}`, coerceToString(value));
   }
   return result;
 }
