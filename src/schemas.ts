@@ -171,13 +171,55 @@ registry.registerPath({
 });
 
 // ---------------------------------------------------------------------------
+// Shared: EmailGeneration object returned by GET endpoints
+// ---------------------------------------------------------------------------
+const EmailGenerationSchema = registry.register(
+  "EmailGeneration",
+  z
+    .object({
+      id: z.string(),
+      orgId: z.string(),
+      runId: z.string(),
+      apolloEnrichmentId: z.string().nullable(),
+      promptType: z.string().nullable(),
+      // Lead info
+      leadFirstName: z.string().nullable(),
+      leadLastName: z.string().nullable(),
+      leadCompany: z.string().nullable(),
+      leadTitle: z.string().nullable(),
+      leadIndustry: z.string().nullable(),
+      // Client info
+      clientCompanyName: z.string().nullable(),
+      clientCompanyDescription: z.string().nullable(),
+      // External references
+      appId: z.string(),
+      brandId: z.string(),
+      campaignId: z.string(),
+      generationRunId: z.string().nullable(),
+      // Generated email
+      subject: z.string().nullable(),
+      bodyHtml: z.string().nullable(),
+      bodyText: z.string().nullable(),
+      // Model info
+      model: z.string(),
+      tokensInput: z.number().nullable(),
+      tokensOutput: z.number().nullable(),
+      // Metadata
+      variablesRaw: z.unknown().nullable(),
+      idempotencyKey: z.string().nullable(),
+      createdAt: z.string(),
+    })
+    .openapi("EmailGeneration")
+);
+
+// ---------------------------------------------------------------------------
 // GET /generations?runId&campaignId&appId&brandId
 // ---------------------------------------------------------------------------
 const GenerationsListResponseSchema = registry.register(
   "GenerationsListResponse",
   z
     .object({
-      generations: z.array(z.object({}).passthrough()),
+      generations: z.array(EmailGenerationSchema),
     })
     .openapi("GenerationsListResponse")
 );
@@ -217,7 +259,7 @@ const GenerationSingleResponseSchema = registry.register(
   "GenerationSingleResponse",
   z
     .object({
-      generation: z.object({}).passthrough(),
+      generation: EmailGenerationSchema,
     })
     .openapi("GenerationSingleResponse")
 );
