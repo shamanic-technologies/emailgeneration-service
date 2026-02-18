@@ -45,6 +45,7 @@ export const emailGenerations = pgTable(
     leadLastName: text("lead_last_name"),
     leadCompany: text("lead_company"),
     leadTitle: text("lead_title"),
+    leadIndustry: text("lead_industry"),
 
     // Client info (for context / dashboard display)
     clientCompanyName: text("client_company_name"),

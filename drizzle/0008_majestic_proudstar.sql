@@ -1,0 +1,1 @@
+ALTER TABLE "email_generations" ADD COLUMN "lead_industry" text;
