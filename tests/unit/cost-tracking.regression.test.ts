@@ -81,6 +81,7 @@ vi.mock("../../src/db/schema.js", () => ({
 
 vi.mock("../../src/lib/key-client.js", () => ({
   getByokKey: vi.fn().mockResolvedValue("fake-anthropic-key"),
+  getAppKey: vi.fn().mockResolvedValue("fake-app-key"),
 }));
 
 // Mock anthropic client to return predictable token counts
@@ -109,6 +110,7 @@ const VALID_REQUEST = {
   appId: "app-1",
   type: "email",
   variables: { recipientName: "John at Acme", senderName: "MyCompany" },
+  keyMode: "byok",
   runId: "run-parent-123",
 };
 
