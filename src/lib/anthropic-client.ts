@@ -2,6 +2,11 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-opus-4-5";
 
+const SYSTEM_PROMPT = `IMPORTANT RULES — apply to every email you generate:
+- NEVER mention the client's company name. Use vague references instead: "a client of mine", "a company I work with", "one of my clients", etc.
+- NEVER include the client's website URL.
+- The goal is to spark curiosity so the recipient wants to learn more and replies to ask for details.`;
+
 export interface GenerateFromTemplateParams {
   promptTemplate: string;
   variables: Record<string, unknown>;
@@ -62,6 +67,7 @@ export async function generateFromTemplate(
   const response = await anthropic.messages.create({
     model: MODEL,
     max_tokens: 1024,
+    system: SYSTEM_PROMPT,
     messages: [
       {
         role: "user",
