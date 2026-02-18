@@ -167,4 +167,25 @@ describe("POST /generate (template-based)", () => {
       })
       .expect(200);
   });
+
+  it("accepts array and object variable values (regression: windmill sends non-strings)", async () => {
+    const res = await request(app)
+      .post("/generate")
+      .set("X-Clerk-Org-Id", "org_test")
+      .send({
+        appId: "my-app",
+        type: "email",
+        variables: {
+          recipientInfo: "Name: John",
+          senderInfo: "MyBrand",
+          personTitles: ["Executive Director", "Program Manager"],
+          searchParams: { qKeywords: "blockchain OR web3" },
+          tags: ["sales", "outreach"],
+        },
+        runId: "run-1",
+      })
+      .expect(200);
+
+    expect(res.body.id).toBe("gen-789");
+  });
 });

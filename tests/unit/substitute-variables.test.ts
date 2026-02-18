@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { substituteVariables } from "../../src/lib/anthropic-client";
+import { substituteVariables, coerceToString } from "../../src/lib/anthropic-client";
 
 describe("substituteVariables", () => {
   it("replaces single variable", () => {
@@ -46,5 +46,62 @@ describe("substituteVariables", () => {
   it("handles template with no placeholders", () => {
     const result = substituteVariables("No variables here", { name: "Alice" });
     expect(result).toBe("No variables here");
+  });
+
+  it("coerces string arrays to comma-separated strings", () => {
+    const result = substituteVariables("Titles: {{titles}}", {
+      titles: ["Executive Director", "Program Manager", "Community Leader"],
+    });
+    expect(result).toBe("Titles: Executive Director, Program Manager, Community Leader");
+  });
+
+  it("coerces objects to JSON strings", () => {
+    const result = substituteVariables("Params: {{params}}", {
+      params: { personTitles: ["CEO"], qKeywords: "blockchain" },
+    });
+    expect(result).toContain('"personTitles"');
+    expect(result).toContain('"qKeywords"');
+  });
+
+  it("coerces numbers and booleans to strings", () => {
+    const result = substituteVariables("Count: {{count}}, Active: {{active}}", {
+      count: 42,
+      active: true,
+    });
+    expect(result).toBe("Count: 42, Active: true");
+  });
+
+  it("handles mixed string and non-string variables", () => {
+    const result = substituteVariables(
+      "Name: {{name}}, Tags: {{tags}}",
+      { name: "Alice", tags: ["sales", "outreach"] }
+    );
+    expect(result).toBe("Name: Alice, Tags: sales, outreach");
+  });
+});
+
+describe("coerceToString", () => {
+  it("passes strings through unchanged", () => {
+    expect(coerceToString("hello")).toBe("hello");
+  });
+
+  it("comma-joins string arrays", () => {
+    expect(coerceToString(["a", "b", "c"])).toBe("a, b, c");
+  });
+
+  it("JSON-stringifies objects", () => {
+    expect(coerceToString({ key: "value" })).toBe('{"key":"value"}');
+  });
+
+  it("JSON-stringifies mixed arrays", () => {
+    expect(coerceToString([1, "two", true])).toBe('[1,"two",true]');
+  });
+
+  it("stringifies null", () => {
+    expect(coerceToString(null)).toBe("null");
+  });
+
+  it("stringifies numbers", () => {
+    expect(coerceToString(42)).toBe("42");
   });
 });

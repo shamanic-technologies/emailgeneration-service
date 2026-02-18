@@ -112,7 +112,7 @@ export const GenerateRequestSchema = registry.register(
     .object({
       appId: z.string(),
       type: z.string().describe("Which stored prompt to use, e.g. 'email' or 'calendar'"),
-      variables: z.record(z.string(), z.string()).describe("Variable values to substitute into the prompt template"),
+      variables: z.record(z.string(), z.unknown()).describe("Variable values to substitute into the prompt template. Non-string values (arrays, objects) are coerced to strings."),
       // Tracking / linking
       runId: z.string(),
       brandId: z.string().optional(),
