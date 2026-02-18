@@ -75,6 +75,10 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       variables,
     });
 
+    // Extract lead/client fields from variables for dedicated columns
+    const str = (v: unknown): string | null =>
+      typeof v === "string" && v.length > 0 ? v : null;
+
     // Store in database
     const [generation] = await db
       .insert(emailGenerations)
@@ -87,6 +91,13 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         brandId: brandId ?? "",
         campaignId: campaignId ?? "",
         variablesRaw: variables,
+        // Populate dedicated lead/client columns from variables
+        leadFirstName: str(variables.leadFirstName),
+        leadLastName: str(variables.leadLastName),
+        leadTitle: str(variables.leadTitle),
+        leadCompany: str(variables.leadCompanyName),
+        leadIndustry: str(variables.leadCompanyIndustry),
+        clientCompanyName: str(variables.clientCompanyName),
         subject: result.subject,
         bodyHtml: result.bodyHtml,
         bodyText: result.bodyText,
