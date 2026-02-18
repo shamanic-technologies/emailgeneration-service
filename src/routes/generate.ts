@@ -4,7 +4,7 @@ import { db } from "../db/index.js";
 import { emailGenerations, prompts } from "../db/schema.js";
 import { serviceAuth, AuthenticatedRequest } from "../middleware/auth.js";
 import { generateFromTemplate } from "../lib/anthropic-client.js";
-import { getByokKey } from "../lib/key-client.js";
+import { getByokKey, getAppKey } from "../lib/key-client.js";
 import { createRun, updateRun, addCosts } from "../lib/runs-client.js";
 import { GenerateRequestSchema, StatsRequestSchema } from "../schemas.js";
 
@@ -24,6 +24,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       appId,
       type,
       variables,
+      keyMode,
       runId,
       brandId,
       campaignId,
@@ -64,7 +65,9 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     }
 
     // Get Anthropic API key
-    const anthropicApiKey = await getByokKey(req.clerkOrgId!, "anthropic");
+    const anthropicApiKey = keyMode === "byok"
+      ? await getByokKey(req.clerkOrgId!, "anthropic")
+      : await getAppKey(appId, "anthropic");
 
     // Generate using the stored prompt + variable substitution
     const result = await generateFromTemplate(anthropicApiKey, {

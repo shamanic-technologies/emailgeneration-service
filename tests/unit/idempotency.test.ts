@@ -61,6 +61,7 @@ vi.mock("../../src/db/schema.js", () => ({
 
 vi.mock("../../src/lib/key-client.js", () => ({
   getByokKey: vi.fn().mockResolvedValue("fake-anthropic-key"),
+  getAppKey: vi.fn().mockResolvedValue("fake-app-key"),
 }));
 
 const mockGenerateFromTemplate = vi.fn().mockResolvedValue({
@@ -88,6 +89,7 @@ const validBody = {
   appId: "my-app",
   type: "email",
   variables: { recipientInfo: "John Doe", senderInfo: "MyBrand" },
+  keyMode: "byok",
   runId: "run-parent-1",
 };
 

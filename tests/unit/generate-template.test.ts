@@ -50,8 +50,12 @@ vi.mock("../../src/db/schema.js", () => ({
   prompts: { appId: { name: "app_id" }, type: { name: "type" } },
 }));
 
+const mockGetByokKey = vi.fn().mockResolvedValue("fake-anthropic-key");
+const mockGetAppKey = vi.fn().mockResolvedValue("fake-app-key");
+
 vi.mock("../../src/lib/key-client.js", () => ({
-  getByokKey: vi.fn().mockResolvedValue("fake-anthropic-key"),
+  getByokKey: (...args: unknown[]) => mockGetByokKey(...args),
+  getAppKey: (...args: unknown[]) => mockGetAppKey(...args),
 }));
 
 // Mock anthropic client — capture what prompt was sent
@@ -106,6 +110,7 @@ describe("POST /generate (template-based)", () => {
           recipientInfo: "Name: John Doe\nCompany: Acme Corp",
           senderInfo: "Name: MyBrand\nURL: https://mybrand.com",
         },
+        keyMode: "byok",
         runId: "run-parent-1",
       })
       .expect(200);
@@ -137,6 +142,7 @@ describe("POST /generate (template-based)", () => {
         appId: "unknown-app",
         type: "email",
         variables: {},
+        keyMode: "byok",
         runId: "run-1",
       })
       .expect(404);
@@ -160,12 +166,63 @@ describe("POST /generate (template-based)", () => {
         appId: "my-app",
         type: "email",
         variables: { recipientInfo: "test", senderInfo: "test" },
+        keyMode: "byok",
         runId: "run-1",
         brandId: "brand-1",
         campaignId: "campaign-1",
         apolloEnrichmentId: "enrich-1",
       })
       .expect(200);
+  });
+
+  it("uses getByokKey when keyMode is byok", async () => {
+    await request(app)
+      .post("/generate")
+      .set("X-Clerk-Org-Id", "org_test")
+      .send({
+        appId: "my-app",
+        type: "email",
+        variables: { recipientInfo: "test", senderInfo: "test" },
+        keyMode: "byok",
+        runId: "run-1",
+      })
+      .expect(200);
+
+    expect(mockGetByokKey).toHaveBeenCalledWith("org_test", "anthropic");
+    expect(mockGetAppKey).not.toHaveBeenCalled();
+  });
+
+  it("uses getAppKey when keyMode is app", async () => {
+    await request(app)
+      .post("/generate")
+      .set("X-Clerk-Org-Id", "org_test")
+      .send({
+        appId: "my-app",
+        type: "email",
+        variables: { recipientInfo: "test", senderInfo: "test" },
+        keyMode: "app",
+        runId: "run-1",
+      })
+      .expect(200);
+
+    expect(mockGetAppKey).toHaveBeenCalledWith("my-app", "anthropic");
+    expect(mockGetByokKey).not.toHaveBeenCalled();
+  });
+
+  it("returns 400 for invalid keyMode", async () => {
+    const res = await request(app)
+      .post("/generate")
+      .set("X-Clerk-Org-Id", "org_test")
+      .send({
+        appId: "my-app",
+        type: "email",
+        variables: { recipientInfo: "test", senderInfo: "test" },
+        keyMode: "invalid",
+        runId: "run-1",
+      })
+      .expect(400);
+
+    expect(res.body.error).toBeDefined();
   });
 
   it("accepts array and object variable values (regression: windmill sends non-strings)", async () => {
@@ -182,6 +239,7 @@ describe("POST /generate (template-based)", () => {
           searchParams: { qKeywords: "blockchain OR web3" },
           tags: ["sales", "outreach"],
         },
+        keyMode: "byok",
         runId: "run-1",
       })
       .expect(200);
