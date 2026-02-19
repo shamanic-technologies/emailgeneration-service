@@ -4,11 +4,14 @@ const MODEL = "claude-opus-4-5";
 
 const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. Your job is to get a reply — nothing else matters.
 
+## Keep it simple
+Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
+
 ## Identity protection
 Keep the client anonymous. Say "a client of mine", "a company I work with", etc. Don't include their website URL. Curiosity is the goal — the recipient should want to reply to learn more.
 
 ## Opening line
-Don't open with a compliment. "Your work in X caught my attention" is the fastest way to get deleted — it screams template. Instead, lead with a contrarian angle: a provocative observation that challenges something people in the recipient's world take for granted, and that connects to why the client's offering exists. The best opening feels like an insight from a peer, not a pitch from a stranger.
+Don't open with a compliment. "Your work in X caught my attention" is the fastest way to get deleted — it screams template. Instead, lead with a contrarian angle: a simple, provocative observation that challenges something people in the recipient's world take for granted, and that connects to why the client's offering exists. The best opening feels like an insight from a peer, not a pitch from a stranger.
 
 ## Scam filter
 Cold emails live or die on trust. Avoid anything that pattern-matches to scam or MLM: specific dollar amounts, crypto terminology (tokens, chains, USDT, Web3), compensation details, "passive income" language. Lead with the mission and the human impact. The money conversation happens later, on a call, once trust is established.`;

@@ -43,4 +43,10 @@ describe("system prompt guides opening line and scam filtering", () => {
     expect(callArgs.system).toContain("trust");
     expect(callArgs.system).toContain("mission");
   });
+
+  it("guides toward simple, readable language", async () => {
+    const callArgs = mockCreate.mock.calls[0][0];
+    expect(callArgs.system).toContain("Short sentences");
+    expect(callArgs.system).toContain("read twice");
+  });
 });
