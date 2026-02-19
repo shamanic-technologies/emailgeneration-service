@@ -68,7 +68,7 @@ export const emailGenerations = pgTable(
     bodyText: text("body_text"),
 
     // Model info (kept for operational metadata)
-    model: text("model").notNull().default("claude-opus-4-5"),
+    model: text("model").notNull().default("claude-sonnet-4-6"),
     tokensInput: integer("tokens_input"),
     tokensOutput: integer("tokens_output"),
 
@@ -139,7 +139,7 @@ export const contentGenerations = pgTable(
     parentRunId: text("parent_run_id"),
 
     // Model metadata
-    model: text("model").notNull().default("claude-opus-4-6"),
+    model: text("model").notNull().default("claude-sonnet-4-6"),
     tokensInput: integer("tokens_input"),
     tokensOutput: integer("tokens_output"),
 

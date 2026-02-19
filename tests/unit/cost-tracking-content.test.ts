@@ -142,7 +142,7 @@ describe("Content generation cost tracking", () => {
     errorSpy.mockRestore();
   });
 
-  it("should use anthropic-opus-4.6 cost names for /generate/content", async () => {
+  it("should use anthropic-sonnet-4.6 cost names for /generate/content", async () => {
     await request(app)
       .post("/generate/content")
       .set("X-Clerk-Org-Id", "org_test")
@@ -152,8 +152,8 @@ describe("Content generation cost tracking", () => {
     expect(mockAddCosts).toHaveBeenCalledTimes(1);
     const [, costItems] = mockAddCosts.mock.calls[0];
     const costNames = costItems.map((c: { costName: string }) => c.costName);
-    expect(costNames).toContain("anthropic-opus-4.6-tokens-input");
-    expect(costNames).toContain("anthropic-opus-4.6-tokens-output");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-input");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-output");
   });
 
   it("should post raw token quantities for /generate/content", async () => {
@@ -164,8 +164,8 @@ describe("Content generation cost tracking", () => {
       .expect(200);
 
     const [, costItems] = mockAddCosts.mock.calls[0];
-    const inputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-opus-4.6-tokens-input");
-    const outputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-opus-4.6-tokens-output");
+    const inputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-sonnet-4.6-tokens-input");
+    const outputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-sonnet-4.6-tokens-output");
 
     expect(inputCost.quantity).toBe(MOCK_TOKENS_INPUT);
     expect(outputCost.quantity).toBe(MOCK_TOKENS_OUTPUT);
@@ -206,7 +206,7 @@ describe("Content generation cost tracking", () => {
     errorSpy.mockRestore();
   });
 
-  it("should use anthropic-opus-4.6 cost names for /generate/calendar", async () => {
+  it("should use anthropic-sonnet-4.6 cost names for /generate/calendar", async () => {
     await request(app)
       .post("/generate/calendar")
       .set("X-Clerk-Org-Id", "org_test")
@@ -216,7 +216,7 @@ describe("Content generation cost tracking", () => {
     expect(mockAddCosts).toHaveBeenCalledTimes(1);
     const [, costItems] = mockAddCosts.mock.calls[0];
     const costNames = costItems.map((c: { costName: string }) => c.costName);
-    expect(costNames).toContain("anthropic-opus-4.6-tokens-input");
-    expect(costNames).toContain("anthropic-opus-4.6-tokens-output");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-input");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-output");
   });
 });

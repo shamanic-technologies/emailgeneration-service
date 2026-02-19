@@ -6,7 +6,7 @@ import request from "supertest";
  * Regression test: email generation cost tracking
  *
  * Bug: Campaign showed $0.11 total cost for 350 leads + 350 emails generated
- * with Opus 4.5. Real cost should have been ~$9-23.
+ * with Sonnet 4.6. Real cost should have been ~$9-23.
  *
  * Root causes:
  * 1. Cost tracking errors were silently swallowed (console.warn instead of console.error)
@@ -130,7 +130,7 @@ describe("Email generation cost tracking", () => {
     app.use(generateRoutes);
   });
 
-  it("should post costs with exact cost names: anthropic-opus-4.5-tokens-input and anthropic-opus-4.5-tokens-output", async () => {
+  it("should post costs with exact cost names: anthropic-sonnet-4.6-tokens-input and anthropic-sonnet-4.6-tokens-output", async () => {
     await request(app)
       .post("/generate")
       .set("X-Clerk-Org-Id", "org_test")
@@ -143,8 +143,8 @@ describe("Email generation cost tracking", () => {
     expect(runId).toBe("run-456");
 
     const costNames = costItems.map((c: { costName: string }) => c.costName);
-    expect(costNames).toContain("anthropic-opus-4.5-tokens-input");
-    expect(costNames).toContain("anthropic-opus-4.5-tokens-output");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-input");
+    expect(costNames).toContain("anthropic-sonnet-4.6-tokens-output");
   });
 
   it("should post raw token quantities, not dollar amounts", async () => {
@@ -155,8 +155,8 @@ describe("Email generation cost tracking", () => {
       .expect(200);
 
     const [, costItems] = mockAddCosts.mock.calls[0];
-    const inputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-opus-4.5-tokens-input");
-    const outputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-opus-4.5-tokens-output");
+    const inputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-sonnet-4.6-tokens-input");
+    const outputCost = costItems.find((c: { costName: string }) => c.costName === "anthropic-sonnet-4.6-tokens-output");
 
     // Quantities must be raw token counts, not dollar values
     expect(inputCost.quantity).toBe(MOCK_TOKENS_INPUT);

@@ -64,6 +64,13 @@
       "when": 1771423967868,
       "tag": "0008_majestic_proudstar",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1771497965326,
+      "tag": "0009_skinny_brood",
+      "breakpoints": true
     }
   ]
 }

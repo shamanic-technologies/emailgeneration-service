@@ -54,7 +54,7 @@ describe("runs-client retry logic", () => {
     const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
 
     const result = await addCosts("run-1", [
-      { costName: "anthropic-opus-4.5-tokens-input", quantity: 100 },
+      { costName: "anthropic-sonnet-4.6-tokens-input", quantity: 100 },
     ]);
 
     expect(result).toEqual({ costs: [] });
