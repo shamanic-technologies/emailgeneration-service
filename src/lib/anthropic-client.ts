@@ -1,6 +1,6 @@
 import Anthropic from "@anthropic-ai/sdk";
 
-const MODEL = "claude-opus-4-5";
+const MODEL = "claude-sonnet-4-6";
 
 const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. Your job is to get a reply — nothing else matters.
 
@@ -96,8 +96,8 @@ export async function generateFromTemplate(
   const tokensInput = response.usage.input_tokens;
   const tokensOutput = response.usage.output_tokens;
   const costUsd =
-    (tokensInput / 1_000_000) * 5 +
-    (tokensOutput / 1_000_000) * 25;
+    (tokensInput / 1_000_000) * 3 +
+    (tokensOutput / 1_000_000) * 15;
 
   return {
     ...parsed,

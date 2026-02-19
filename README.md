@@ -1,10 +1,10 @@
 # Email Generation Service
 
-A microservice for generating personalized cold emails using Claude Opus 4.5.
+A microservice for generating personalized cold emails using Claude Sonnet 4.6.
 
 ## Features
 
-- Generates personalized cold sales emails using Anthropic Claude Opus 4.5
+- Generates personalized cold sales emails using Anthropic Claude Sonnet 4.6
 - Stores generations in PostgreSQL with Drizzle ORM
 - BYOK (Bring Your Own Key) support for Anthropic API keys
 - Cost tracking integration with runs-service
@@ -15,7 +15,7 @@ A microservice for generating personalized cold emails using Claude Opus 4.5.
 - **Runtime:** Node.js 20+, TypeScript
 - **Framework:** Express.js
 - **Database:** PostgreSQL with Drizzle ORM
-- **AI:** Anthropic Claude Opus 4.5
+- **AI:** Anthropic Claude Sonnet 4.6
 - **Monitoring:** Sentry
 - **Testing:** Vitest
 

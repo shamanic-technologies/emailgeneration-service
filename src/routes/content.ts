@@ -67,7 +67,7 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
         bodyText: result.bodyText,
         generationRunId: genRun.id,
         parentRunId: parentRunId ?? null,
-        model: "claude-opus-4-6",
+        model: "claude-sonnet-4-6",
         tokensInput: result.tokensInput,
         tokensOutput: result.tokensOutput,
         promptRaw: result.promptRaw,
@@ -78,10 +78,10 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
     // Track costs — MUST succeed
     const costItems = [];
     if (result.tokensInput) {
-      costItems.push({ costName: "anthropic-opus-4.6-tokens-input", quantity: result.tokensInput });
+      costItems.push({ costName: "anthropic-sonnet-4.6-tokens-input", quantity: result.tokensInput });
     }
     if (result.tokensOutput) {
-      costItems.push({ costName: "anthropic-opus-4.6-tokens-output", quantity: result.tokensOutput });
+      costItems.push({ costName: "anthropic-sonnet-4.6-tokens-output", quantity: result.tokensOutput });
     }
     if (costItems.length > 0) {
       await addCosts(genRun.id, costItems);
@@ -143,7 +143,7 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
         location: result.location,
         generationRunId: genRun.id,
         parentRunId: parentRunId ?? null,
-        model: "claude-opus-4-6",
+        model: "claude-sonnet-4-6",
         tokensInput: result.tokensInput,
         tokensOutput: result.tokensOutput,
         promptRaw: result.promptRaw,
@@ -154,10 +154,10 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
     // Track costs — MUST succeed
     const costItems = [];
     if (result.tokensInput) {
-      costItems.push({ costName: "anthropic-opus-4.6-tokens-input", quantity: result.tokensInput });
+      costItems.push({ costName: "anthropic-sonnet-4.6-tokens-input", quantity: result.tokensInput });
     }
     if (result.tokensOutput) {
-      costItems.push({ costName: "anthropic-opus-4.6-tokens-output", quantity: result.tokensOutput });
+      costItems.push({ costName: "anthropic-sonnet-4.6-tokens-output", quantity: result.tokensOutput });
     }
     if (costItems.length > 0) {
       await addCosts(genRun.id, costItems);
