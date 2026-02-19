@@ -7,6 +7,9 @@ const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. You
 ## Keep it simple
 Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
 
+## Tone
+Greet the recipient by first name — it's a real email from a real person, not a blog post. Keep it warm, direct, conversational.
+
 ## Identity protection
 Keep the client anonymous. Say "a client of mine", "a company I work with", etc. Don't include their website URL. Curiosity is the goal — the recipient should want to reply to learn more.
 
