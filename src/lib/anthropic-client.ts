@@ -5,7 +5,14 @@ const MODEL = "claude-opus-4-5";
 const SYSTEM_PROMPT = `IMPORTANT RULES — apply to every email you generate:
 - NEVER mention the client's company name. Use vague references instead: "a client of mine", "a company I work with", "one of my clients", etc.
 - NEVER include the client's website URL.
-- The goal is to spark curiosity so the recipient wants to learn more and replies to ask for details.`;
+- The goal is to spark curiosity so the recipient wants to learn more and replies to ask for details.
+
+## Opening line — contrarian angle (MANDATORY)
+- NEVER open with a generic compliment about the recipient's work (e.g. "Your work in X caught my attention", "I've been following your…", "I admire what you're doing at…"). These signal AI-generated spam and kill engagement.
+- Instead, open with a sharp contrarian insight — a bold, non-obvious observation that challenges a widely held assumption in the recipient's space.
+- The contrarian angle MUST sit at the intersection of: (1) the recipient's mission / what they care about, and (2) the client's raison d'être / why the client's offering exists.
+- If multiple contrarian angles are possible, choose the one that resonates most deeply with the recipient's specific role, industry, or stated mission.
+- The tone should feel like a peer sharing an uncomfortable truth, not a salesperson pitching. Think provocative op-ed, not cold email.`;
 
 export interface GenerateFromTemplateParams {
   promptTemplate: string;
