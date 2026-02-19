@@ -70,7 +70,6 @@ const mockGenerateFromTemplate = vi.fn().mockResolvedValue({
   bodyText: "Fresh body",
   tokensInput: 500,
   tokensOutput: 100,
-  costUsd: 0.005,
   promptRaw: "resolved prompt",
   responseRaw: {},
 });

@@ -30,7 +30,6 @@ export interface GenerateResult {
   bodyText: string;
   tokensInput: number;
   tokensOutput: number;
-  costUsd: number;
   promptRaw: string;
   responseRaw: object;
 }
@@ -95,15 +94,11 @@ export async function generateFromTemplate(
 
   const tokensInput = response.usage.input_tokens;
   const tokensOutput = response.usage.output_tokens;
-  const costUsd =
-    (tokensInput / 1_000_000) * 3 +
-    (tokensOutput / 1_000_000) * 15;
 
   return {
     ...parsed,
     tokensInput,
     tokensOutput,
-    costUsd,
     promptRaw: prompt,
     responseRaw: response,
   };

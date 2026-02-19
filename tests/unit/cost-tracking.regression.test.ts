@@ -11,7 +11,7 @@ import request from "supertest";
  * Root causes:
  * 1. Cost tracking errors were silently swallowed (console.warn instead of console.error)
  * 2. Cost names may not be registered in runs-service catalog
- * 3. Locally computed costUsd was never used in reporting
+ * 3. Local cost estimation was removed — costs are tracked solely via runs-service
  *
  * These tests verify:
  * - Correct cost names are used when posting to runs-service
@@ -94,7 +94,6 @@ vi.mock("../../src/lib/anthropic-client.js", () => ({
     bodyText: "Test body",
     tokensInput: MOCK_TOKENS_INPUT,
     tokensOutput: MOCK_TOKENS_OUTPUT,
-    costUsd: 0.015,
     promptRaw: "test prompt",
     responseRaw: {},
   }),
