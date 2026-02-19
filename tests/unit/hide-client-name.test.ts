@@ -31,7 +31,7 @@ describe("system prompt hides client identity", () => {
 
     const callArgs = mockCreate.mock.calls[0][0];
     expect(callArgs.system).toBeDefined();
-    expect(callArgs.system).toContain("NEVER mention the client's company name");
-    expect(callArgs.system).toContain("NEVER include the client's website URL");
+    expect(callArgs.system).toContain("client anonymous");
+    expect(callArgs.system).toContain("website URL");
   });
 });

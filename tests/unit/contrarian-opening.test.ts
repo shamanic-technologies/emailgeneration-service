@@ -19,26 +19,34 @@ vi.mock("@anthropic-ai/sdk", () => {
   };
 });
 
-describe("system prompt enforces contrarian opening", () => {
-  it("instructs to never open with a generic compliment", async () => {
+describe("system prompt guides opening line and scam filtering", () => {
+  it("guides away from compliment openings toward contrarian angles", async () => {
     await generateFromTemplate("fake-key", {
       promptTemplate: "Write an email to {{recipientName}}",
       variables: { recipientName: "Susan" },
     });
 
     const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.system).toContain("NEVER open with a generic compliment");
-  });
-
-  it("instructs to open with a contrarian insight", async () => {
-    const callArgs = mockCreate.mock.calls[0][0];
     expect(callArgs.system).toContain("contrarian");
-    expect(callArgs.system).toContain("bold, non-obvious observation");
+    expect(callArgs.system).toContain("compliment");
   });
 
-  it("requires the angle to connect recipient mission and client raison d'être", async () => {
+  it("includes scam filtering guidance", async () => {
     const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.system).toContain("recipient's mission");
-    expect(callArgs.system).toContain("client's raison d'être");
+    expect(callArgs.system).toContain("Scam filter");
+    expect(callArgs.system).toContain("crypto");
+    expect(callArgs.system).toContain("dollar amounts");
+  });
+
+  it("emphasizes trust and mission-first approach", async () => {
+    const callArgs = mockCreate.mock.calls[0][0];
+    expect(callArgs.system).toContain("trust");
+    expect(callArgs.system).toContain("mission");
+  });
+
+  it("guides toward simple, readable language", async () => {
+    const callArgs = mockCreate.mock.calls[0][0];
+    expect(callArgs.system).toContain("Short sentences");
+    expect(callArgs.system).toContain("read twice");
   });
 });

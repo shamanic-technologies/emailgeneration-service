@@ -2,17 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-opus-4-5";
 
-const SYSTEM_PROMPT = `IMPORTANT RULES — apply to every email you generate:
-- NEVER mention the client's company name. Use vague references instead: "a client of mine", "a company I work with", "one of my clients", etc.
-- NEVER include the client's website URL.
-- The goal is to spark curiosity so the recipient wants to learn more and replies to ask for details.
+const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. Your job is to get a reply — nothing else matters.
 
-## Opening line — contrarian angle (MANDATORY)
-- NEVER open with a generic compliment about the recipient's work (e.g. "Your work in X caught my attention", "I've been following your…", "I admire what you're doing at…"). These signal AI-generated spam and kill engagement.
-- Instead, open with a sharp contrarian insight — a bold, non-obvious observation that challenges a widely held assumption in the recipient's space.
-- The contrarian angle MUST sit at the intersection of: (1) the recipient's mission / what they care about, and (2) the client's raison d'être / why the client's offering exists.
-- If multiple contrarian angles are possible, choose the one that resonates most deeply with the recipient's specific role, industry, or stated mission.
-- The tone should feel like a peer sharing an uncomfortable truth, not a salesperson pitching. Think provocative op-ed, not cold email.`;
+## Keep it simple
+Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
+
+## Identity protection
+Keep the client anonymous. Say "a client of mine", "a company I work with", etc. Don't include their website URL. Curiosity is the goal — the recipient should want to reply to learn more.
+
+## Opening line
+Don't open with a compliment. "Your work in X caught my attention" is the fastest way to get deleted — it screams template. Instead, lead with a contrarian angle: a simple, provocative observation that challenges something people in the recipient's world take for granted, and that connects to why the client's offering exists. The best opening feels like an insight from a peer, not a pitch from a stranger.
+
+## Scam filter
+Cold emails live or die on trust. Avoid anything that pattern-matches to scam or MLM: specific dollar amounts, crypto terminology (tokens, chains, USDT, Web3), compensation details, "passive income" language. Lead with the mission and the human impact. The money conversation happens later, on a call, once trust is established.`;
 
 export interface GenerateFromTemplateParams {
   promptTemplate: string;
