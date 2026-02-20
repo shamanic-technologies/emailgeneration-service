@@ -4,6 +4,9 @@ const MODEL = "claude-sonnet-4-6";
 
 const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. Your job is to get a reply — nothing else matters.
 
+## Output rule
+Always respond with the final email to send to the recipient. Never respond with commentary, suggestions, analysis, or a discussion — only the email itself, ready to send.
+
 ## Keep it simple
 Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
 
@@ -64,9 +67,19 @@ export function substituteVariables(
   return result;
 }
 
+const EMAIL_JSON_SCHEMA = {
+  type: "object" as const,
+  properties: {
+    subject: { type: "string" as const },
+    body: { type: "string" as const },
+  },
+  required: ["subject", "body"],
+  additionalProperties: false,
+};
+
 /**
  * Generate content by substituting variables into a stored prompt template
- * and sending it to Claude.
+ * and sending it to Claude with structured JSON output.
  */
 export async function generateFromTemplate(
   apiKey: string,
@@ -86,12 +99,18 @@ export async function generateFromTemplate(
         content: prompt,
       },
     ],
+    output_config: {
+      format: {
+        type: "json_schema",
+        schema: EMAIL_JSON_SCHEMA,
+      },
+    },
   });
 
   const textContent = response.content.find((c) => c.type === "text");
   const text = textContent?.type === "text" ? textContent.text : "";
 
-  const parsed = parseEmailResponse(text);
+  const parsed = parseEmailJson(text);
 
   const tokensInput = response.usage.input_tokens;
   const tokensOutput = response.usage.output_tokens;
@@ -109,31 +128,18 @@ export async function generateFromTemplate(
   };
 }
 
-function parseEmailResponse(text: string): {
+function parseEmailJson(text: string): {
   subject: string;
   bodyHtml: string;
   bodyText: string;
 } {
-  const lines = text.trim().split("\n");
-  let subject = "";
-  const bodyLines: string[] = [];
-  let inBody = false;
+  const json = JSON.parse(text) as { subject: string; body: string };
 
-  for (const line of lines) {
-    if (line.startsWith("SUBJECT:")) {
-      subject = line.replace("SUBJECT:", "").trim();
-    } else if (line.trim() === "---") {
-      inBody = true;
-    } else if (inBody) {
-      bodyLines.push(line);
-    }
-  }
-
-  const bodyText = bodyLines.join("\n").trim();
+  const bodyText = json.body.trim();
   const bodyHtml = bodyText
     .split("\n\n")
     .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
 
-  return { subject, bodyHtml, bodyText };
+  return { subject: json.subject, bodyHtml, bodyText };
 }

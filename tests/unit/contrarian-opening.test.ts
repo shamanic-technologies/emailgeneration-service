@@ -5,7 +5,7 @@ const mockCreate = vi.fn().mockResolvedValue({
   content: [
     {
       type: "text" as const,
-      text: "SUBJECT: Quick question\n---\nMost community organizers focus on local impact — but that instinct to keep things small might be the biggest barrier to lasting change.\n\nI'm working with a client building a global network for funding public welfare initiatives, and they need experienced organizers as founding ambassadors.",
+      text: JSON.stringify({ subject: "Quick question", body: "Most community organizers focus on local impact — but that instinct to keep things small might be the biggest barrier to lasting change.\n\nI'm working with a client building a global network for funding public welfare initiatives, and they need experienced organizers as founding ambassadors." }),
     },
   ],
   usage: { input_tokens: 100, output_tokens: 50 },
