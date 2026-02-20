@@ -1,10 +1,10 @@
-# Email Generation Service
+# Content Generation Service
 
-A microservice for generating personalized cold emails using Claude Sonnet 4.6.
+A microservice for generating personalized content (emails, calendar events, etc.) using Claude Sonnet 4.6.
 
 ## Features
 
-- Generates personalized cold sales emails using Anthropic Claude Sonnet 4.6
+- Generates personalized content using Anthropic Claude Sonnet 4.6
 - Stores generations in PostgreSQL with Drizzle ORM
 - BYOK (Bring Your Own Key) support for Anthropic API keys
 - Cost tracking integration with runs-service
@@ -45,7 +45,7 @@ pnpm dev
 Copy `.env.example` to `.env` and configure:
 
 ```env
-EMAILGENERATION_SERVICE_DATABASE_URL='postgresql://...'
+CONTENT_GENERATION_SERVICE_DATABASE_URL='postgresql://...'
 SENTRY_DSN=https://xxx@xxx.ingest.sentry.io/xxx
 KEY_SERVICE_URL='http://localhost:3001'
 PORT=3005
@@ -98,10 +98,10 @@ pnpm db:studio
 
 ```bash
 # Build
-docker build -t emailgeneration-service .
+docker build -t content-generation-service .
 
 # Run
-docker run -p 3005:3005 --env-file .env emailgeneration-service
+docker run -p 3005:3005 --env-file .env content-generation-service
 ```
 
 ## License

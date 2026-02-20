@@ -147,7 +147,7 @@ const GenerateResponseSchema = registry.register(
 registry.registerPath({
   method: "post",
   path: "/generate",
-  tags: ["Email Generation"],
+  tags: ["Content Generation"],
   summary: "Generate content using a stored prompt template with variable substitution",
   request: {
     headers: z.object({ "x-clerk-org-id": z.string() }),
@@ -191,7 +191,7 @@ const GenerationsListResponseSchema = registry.register(
 registry.registerPath({
   method: "get",
   path: "/generations",
-  tags: ["Email Generation"],
+  tags: ["Content Generation"],
   summary: "List generations with filters",
   request: {
     headers: z.object({ "x-clerk-org-id": z.string() }),
@@ -231,7 +231,7 @@ const GenerationSingleResponseSchema = registry.register(
 registry.registerPath({
   method: "get",
   path: "/generations/by-enrichment/{apolloEnrichmentId}",
-  tags: ["Email Generation"],
+  tags: ["Content Generation"],
   summary: "Get generation by enrichment ID",
   request: {
     headers: z.object({ "x-clerk-org-id": z.string() }),
@@ -239,7 +239,7 @@ registry.registerPath({
   },
   responses: {
     200: {
-      description: "Email generation",
+      description: "Content generation",
       content: {
         "application/json": { schema: GenerationSingleResponseSchema },
       },
@@ -452,7 +452,7 @@ registry.registerPath({
   method: "post",
   path: "/stats/by-model",
   tags: ["Stats"],
-  summary: "Get email generation stats grouped by model (internal)",
+  summary: "Get content generation stats grouped by model (internal)",
   request: {
     body: {
       required: true,

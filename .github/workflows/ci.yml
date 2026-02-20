@@ -43,7 +43,7 @@ jobs:
       - name: Run integration tests
         run: pnpm test:integration
         env:
-          EMAILGENERATION_SERVICE_DATABASE_URL: ${{ steps.neon.outputs.db_url_with_pooler }}?sslmode=require
+          CONTENT_GENERATION_SERVICE_DATABASE_URL: ${{ steps.neon.outputs.db_url_with_pooler }}?sslmode=require
 
       - name: Delete Neon branch
         if: always()

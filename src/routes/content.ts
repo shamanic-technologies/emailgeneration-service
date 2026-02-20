@@ -46,7 +46,7 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
     const genRun = await createRun({
       clerkOrgId: req.clerkOrgId!,
       appId,
-      serviceName: "emailgeneration-service",
+      serviceName: "content-generation-service",
       taskName: "content-generation",
       parentRunId,
     });
@@ -124,7 +124,7 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
     const genRun = await createRun({
       clerkOrgId: req.clerkOrgId!,
       appId,
-      serviceName: "emailgeneration-service",
+      serviceName: "content-generation-service",
       taskName: "calendar-generation",
       parentRunId,
     });

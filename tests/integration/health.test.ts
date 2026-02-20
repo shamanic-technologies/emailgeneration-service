@@ -8,7 +8,7 @@ describe("Health endpoints", () => {
   it("GET /health returns ok", async () => {
     const response = await request(app).get("/health");
     expect(response.status).toBe(200);
-    expect(response.body).toEqual({ status: "ok", service: "emailgeneration-service" });
+    expect(response.body).toEqual({ status: "ok", service: "content-generation-service" });
   });
 
   it("GET /unknown returns 404", async () => {

@@ -1,6 +1,6 @@
-# Project: emailgeneration-service
+# Project: content-generation-service
 
-Microservice that generates personalized cold sales emails using Claude Sonnet 4.6, with BYOK support, PostgreSQL storage, and cost tracking via runs-service.
+Microservice that generates personalized content (emails, calendar events, etc.) using Claude Sonnet 4.6, with BYOK support, PostgreSQL storage, and cost tracking via runs-service.
 
 ## Commands
 
