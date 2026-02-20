@@ -6,7 +6,7 @@ const mockCreate = vi.fn().mockResolvedValue({
   content: [
     {
       type: "text" as const,
-      text: "SUBJECT: Quick question\n---\nHi John, a client of mine is doing interesting work in your space. Curious if you'd be open to hearing more?",
+      text: JSON.stringify({ subject: "Quick question", body: "Hi John, a client of mine is doing interesting work in your space. Curious if you'd be open to hearing more?" }),
     },
   ],
   usage: { input_tokens: 100, output_tokens: 50 },

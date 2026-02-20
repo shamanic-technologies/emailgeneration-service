@@ -10,7 +10,7 @@ vi.mock("@anthropic-ai/sdk", () => {
           content: [
             {
               type: "text" as const,
-              text: "SUBJECT: Quick question\n---\nHi John, noticed Acme is scaling fast. Curious how you handle outreach today?",
+              text: JSON.stringify({ subject: "Quick question", body: "Hi John, noticed Acme is scaling fast. Curious how you handle outreach today?" }),
             },
           ],
           usage: { input_tokens: 100, output_tokens: 50 },
