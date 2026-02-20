@@ -129,7 +129,7 @@ const SequenceStepSchema = z.object({
   step: z.number(),
   bodyHtml: z.string(),
   bodyText: z.string(),
-  delayDays: z.number(),
+  daysSinceLastStep: z.number(),
 });
 
 const GenerateResponseSchema = registry.register(

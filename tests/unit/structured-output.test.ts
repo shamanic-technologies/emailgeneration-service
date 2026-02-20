@@ -64,15 +64,15 @@ describe("structured JSON output", () => {
     expect(result.sequence[0].step).toBe(1);
     expect(result.sequence[0].bodyText).toContain("Hey Sarah");
     expect(result.sequence[0].bodyHtml).toContain("<p>");
-    expect(result.sequence[0].delayDays).toBe(0);
+    expect(result.sequence[0].daysSinceLastStep).toBe(0);
     // Step 2
     expect(result.sequence[1].step).toBe(2);
     expect(result.sequence[1].bodyText).toContain("circling back");
-    expect(result.sequence[1].delayDays).toBe(3);
+    expect(result.sequence[1].daysSinceLastStep).toBe(3);
     // Step 3
     expect(result.sequence[2].step).toBe(3);
     expect(result.sequence[2].bodyText).toContain("Different angle");
-    expect(result.sequence[2].delayDays).toBe(10);
+    expect(result.sequence[2].daysSinceLastStep).toBe(7);
   });
 
   it("includes output rule in system prompt requiring emails-only response", async () => {
