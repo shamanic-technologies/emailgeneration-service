@@ -13,8 +13,8 @@ Always respond with the 3 emails ready to send. Never respond with commentary, s
 
 ## Sequence structure
 - **Email 1 (body):** The initial cold email. Lead with a contrarian angle.
-- **Email 2 (followup1):** A short follow-up sent ~3 days later. Reference the first email without repeating it. Keep it to 2-3 sentences. Same thread — no new subject line.
-- **Email 3 (followup2):** A final follow-up sent ~10 days later. Take a different angle. This is the last attempt — make it count. Same thread — no new subject line.
+- **Email 2 (followup1):** A short follow-up sent ~3 days after email 1. Reference the first email without repeating it. Keep it to 2-3 sentences. Same thread — no new subject line.
+- **Email 3 (followup2):** A final follow-up sent ~7 days after email 2. Take a different angle. This is the last attempt — make it count. Same thread — no new subject line.
 
 ## Keep it simple
 Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
@@ -41,7 +41,7 @@ export interface SequenceStep {
   step: number;
   bodyHtml: string;
   bodyText: string;
-  delayDays: number;
+  daysSinceLastStep: number;
 }
 
 export interface GenerateResult {
@@ -165,9 +165,9 @@ function parseSequenceJson(text: string): {
   };
 
   const bodies = [
-    { raw: json.body, delayDays: 0 },
-    { raw: json.followup1, delayDays: 3 },
-    { raw: json.followup2, delayDays: 10 },
+    { raw: json.body, daysSinceLastStep: 0 },
+    { raw: json.followup1, daysSinceLastStep: 3 },
+    { raw: json.followup2, daysSinceLastStep: 7 },
   ];
 
   const sequence: SequenceStep[] = bodies.map((b, i) => {
@@ -176,7 +176,7 @@ function parseSequenceJson(text: string): {
       step: i + 1,
       bodyHtml: textToHtml(bodyText),
       bodyText,
-      delayDays: b.delayDays,
+      daysSinceLastStep: b.daysSinceLastStep,
     };
   });
 
