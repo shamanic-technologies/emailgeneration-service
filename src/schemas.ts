@@ -124,14 +124,20 @@ export const GenerateRequestSchema = registry.register(
     .openapi("GenerateRequest")
 );
 
+const SequenceStepSchema = z.object({
+  step: z.number(),
+  bodyHtml: z.string(),
+  bodyText: z.string(),
+  delayDays: z.number(),
+});
+
 const GenerateResponseSchema = registry.register(
   "GenerateResponse",
   z
     .object({
       id: z.string(),
       subject: z.string(),
-      bodyHtml: z.string(),
-      bodyText: z.string(),
+      sequence: z.array(SequenceStepSchema),
       tokensInput: z.number(),
       tokensOutput: z.number(),
     })

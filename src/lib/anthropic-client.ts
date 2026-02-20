@@ -2,10 +2,19 @@ import Anthropic from "@anthropic-ai/sdk";
 
 const MODEL = "claude-sonnet-4-6";
 
-const SYSTEM_PROMPT = `You're writing a cold email on behalf of a sales rep. Your job is to get a reply — nothing else matters.
+function buildSystemPrompt(): string {
+  const now = new Date().toISOString().split("T")[0];
+  return `Today is ${now}.
+
+You're writing a 3-email cold outreach sequence on behalf of a sales rep. Your job is to get a reply — nothing else matters.
 
 ## Output rule
-Always respond with the final email to send to the recipient. Never respond with commentary, suggestions, analysis, or a discussion — only the email itself, ready to send.
+Always respond with the 3 emails ready to send. Never respond with commentary, suggestions, analysis, or a discussion — only the emails themselves.
+
+## Sequence structure
+- **Email 1 (body):** The initial cold email. Lead with a contrarian angle.
+- **Email 2 (followup1):** A short follow-up sent ~3 days later. Reference the first email without repeating it. Keep it to 2-3 sentences. Same thread — no new subject line.
+- **Email 3 (followup2):** A final follow-up sent ~10 days later. Take a different angle. This is the last attempt — make it count. Same thread — no new subject line.
 
 ## Keep it simple
 Write like a human texting a smart friend. Short sentences. Plain words. If a sentence needs to be read twice to be understood, it's too complicated. The contrarian angle should hit instantly — not require a PhD to parse.
@@ -16,21 +25,28 @@ Greet the recipient by first name — it's a real email from a real person, not 
 ## Identity protection
 Keep the client anonymous. Say "a client of mine", "a company I work with", etc. Don't include their website URL. Curiosity is the goal — the recipient should want to reply to learn more.
 
-## Opening line
+## Opening line (Email 1 only)
 Don't open with a compliment. "Your work in X caught my attention" is the fastest way to get deleted — it screams template. Instead, lead with a contrarian angle: a simple, provocative observation that challenges something people in the recipient's world take for granted, and that connects to why the client's offering exists. The best opening feels like an insight from a peer, not a pitch from a stranger.
 
 ## Scam filter
 Cold emails live or die on trust. Avoid anything that pattern-matches to scam or MLM: specific dollar amounts, crypto terminology (tokens, chains, USDT, Web3), compensation details, "passive income" language. Lead with the mission and the human impact. The money conversation happens later, on a call, once trust is established.`;
+}
 
 export interface GenerateFromTemplateParams {
   promptTemplate: string;
   variables: Record<string, unknown>;
 }
 
-export interface GenerateResult {
-  subject: string;
+export interface SequenceStep {
+  step: number;
   bodyHtml: string;
   bodyText: string;
+  delayDays: number;
+}
+
+export interface GenerateResult {
+  subject: string;
+  sequence: SequenceStep[];
   tokensInput: number;
   tokensOutput: number;
   costUsd: number;
@@ -67,13 +83,15 @@ export function substituteVariables(
   return result;
 }
 
-const EMAIL_JSON_SCHEMA = {
+const EMAIL_SEQUENCE_JSON_SCHEMA = {
   type: "object" as const,
   properties: {
     subject: { type: "string" as const },
     body: { type: "string" as const },
+    followup1: { type: "string" as const },
+    followup2: { type: "string" as const },
   },
-  required: ["subject", "body"],
+  required: ["subject", "body", "followup1", "followup2"],
   additionalProperties: false,
 };
 
@@ -91,8 +109,8 @@ export async function generateFromTemplate(
 
   const response = await anthropic.messages.create({
     model: MODEL,
-    max_tokens: 1024,
-    system: SYSTEM_PROMPT,
+    max_tokens: 3072,
+    system: buildSystemPrompt(),
     messages: [
       {
         role: "user",
@@ -102,7 +120,7 @@ export async function generateFromTemplate(
     output_config: {
       format: {
         type: "json_schema",
-        schema: EMAIL_JSON_SCHEMA,
+        schema: EMAIL_SEQUENCE_JSON_SCHEMA,
       },
     },
   });
@@ -110,7 +128,7 @@ export async function generateFromTemplate(
   const textContent = response.content.find((c) => c.type === "text");
   const text = textContent?.type === "text" ? textContent.text : "";
 
-  const parsed = parseEmailJson(text);
+  const parsed = parseSequenceJson(text);
 
   const tokensInput = response.usage.input_tokens;
   const tokensOutput = response.usage.output_tokens;
@@ -128,18 +146,39 @@ export async function generateFromTemplate(
   };
 }
 
-function parseEmailJson(text: string): {
-  subject: string;
-  bodyHtml: string;
-  bodyText: string;
-} {
-  const json = JSON.parse(text) as { subject: string; body: string };
-
-  const bodyText = json.body.trim();
-  const bodyHtml = bodyText
+function textToHtml(text: string): string {
+  return text
     .split("\n\n")
     .map((p) => `<p>${p.replace(/\n/g, "<br>")}</p>`)
     .join("");
+}
 
-  return { subject: json.subject, bodyHtml, bodyText };
+function parseSequenceJson(text: string): {
+  subject: string;
+  sequence: SequenceStep[];
+} {
+  const json = JSON.parse(text) as {
+    subject: string;
+    body: string;
+    followup1: string;
+    followup2: string;
+  };
+
+  const bodies = [
+    { raw: json.body, delayDays: 0 },
+    { raw: json.followup1, delayDays: 3 },
+    { raw: json.followup2, delayDays: 10 },
+  ];
+
+  const sequence: SequenceStep[] = bodies.map((b, i) => {
+    const bodyText = b.raw.trim();
+    return {
+      step: i + 1,
+      bodyHtml: textToHtml(bodyText),
+      bodyText,
+      delayDays: b.delayDays,
+    };
+  });
+
+  return { subject: json.subject, sequence };
 }

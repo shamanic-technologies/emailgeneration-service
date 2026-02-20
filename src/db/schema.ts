@@ -62,10 +62,11 @@ export const emailGenerations = pgTable(
     // Link to runs-service generation run for cost tracking
     generationRunId: text("generation_run_id"),
 
-    // Generated email
+    // Generated email sequence
     subject: text("subject"),
     bodyHtml: text("body_html"),
     bodyText: text("body_text"),
+    sequence: jsonb("sequence"),
 
     // Model info (kept for operational metadata)
     model: text("model").notNull().default("claude-sonnet-4-6"),

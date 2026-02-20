@@ -61,8 +61,11 @@ vi.mock("../../src/lib/key-client.js", () => ({
 // Mock anthropic client — capture what prompt was sent
 const mockGenerateFromTemplate = vi.fn().mockResolvedValue({
   subject: "Test subject",
-  bodyHtml: "<p>Test body</p>",
-  bodyText: "Test body",
+  sequence: [
+    { step: 1, bodyHtml: "<p>Test body</p>", bodyText: "Test body", delayDays: 0 },
+    { step: 2, bodyHtml: "<p>Follow-up 1</p>", bodyText: "Follow-up 1", delayDays: 3 },
+    { step: 3, bodyHtml: "<p>Follow-up 2</p>", bodyText: "Follow-up 2", delayDays: 10 },
+  ],
   tokensInput: 500,
   tokensOutput: 100,
   costUsd: 0.005,
@@ -116,7 +119,8 @@ describe("POST /generate (template-based)", () => {
       .expect(200);
 
     expect(res.body.subject).toBe("Test subject");
-    expect(res.body.bodyText).toBe("Test body");
+    expect(res.body.sequence).toHaveLength(3);
+    expect(res.body.sequence[0].bodyText).toBe("Test body");
     expect(res.body.id).toBe("gen-789");
 
     // Verify generateFromTemplate was called with the stored prompt template + variables
