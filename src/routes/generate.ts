@@ -115,7 +115,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         appId,
         brandId,
         campaignId,
-        serviceName: "emailgeneration-service",
+        serviceName: "content-generation-service",
         taskName: "single-generation",
         parentRunId: runId,
       });
@@ -138,7 +138,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       }
       await updateRun(genRun.id, "completed");
     } catch (err) {
-      console.error("[emailgen] COST TRACKING FAILED — costs will be missing from campaign totals.", {
+      console.error("[content-gen] COST TRACKING FAILED — costs will be missing from campaign totals.", {
         runId,
         apolloEnrichmentId,
         tokensInput: result.tokensInput,

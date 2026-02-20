@@ -201,7 +201,7 @@ describe("Email generation cost tracking", () => {
     expect(mockCreateRun).toHaveBeenCalledWith(
       expect.objectContaining({
         parentRunId: "campaign-run-abc",
-        serviceName: "emailgeneration-service",
+        serviceName: "content-generation-service",
         taskName: "single-generation",
       })
     );

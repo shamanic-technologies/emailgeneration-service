@@ -59,7 +59,7 @@ if (process.env.NODE_ENV !== "test") {
     .then(() => {
       console.log("Migrations complete");
       app.listen(Number(PORT), "::", () => {
-        console.log(`EmailGeneration service running on port ${PORT}`);
+        console.log(`Content generation service running on port ${PORT}`);
       });
     })
     .catch((err) => {

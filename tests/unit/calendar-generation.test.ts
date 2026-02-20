@@ -156,7 +156,7 @@ describe("POST /generate/calendar", () => {
 
     expect(mockCreateRun).toHaveBeenCalledWith(
       expect.objectContaining({
-        serviceName: "emailgeneration-service",
+        serviceName: "content-generation-service",
         taskName: "calendar-generation",
         parentRunId: "parent-run-xyz",
       })

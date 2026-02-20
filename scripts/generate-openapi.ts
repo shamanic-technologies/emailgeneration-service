@@ -7,15 +7,15 @@ const generator = new OpenApiGeneratorV3(registry.definitions);
 const document = generator.generateDocument({
   openapi: "3.0.0",
   info: {
-    title: "Email Generation Service",
-    description: "AI-powered cold email generation service",
+    title: "Content Generation Service",
+    description: "AI-powered content generation service",
     version: "1.0.0",
   },
   servers: [
     {
       url:
-        process.env.EMAIL_GENERATION_SERVICE_URL ||
-        "https://email-generation.mcpfactory.org",
+        process.env.CONTENT_GENERATION_SERVICE_URL ||
+        "https://content-generation.mcpfactory.org",
     },
   ],
 });

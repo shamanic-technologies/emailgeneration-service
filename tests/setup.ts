@@ -1,11 +1,11 @@
 import { beforeAll, afterAll, vi } from "vitest";
 
-process.env.EMAILGENERATION_SERVICE_DATABASE_URL = process.env.EMAILGENERATION_SERVICE_DATABASE_URL || "postgresql://test:test@localhost/test";
+process.env.CONTENT_GENERATION_SERVICE_DATABASE_URL = process.env.CONTENT_GENERATION_SERVICE_DATABASE_URL || "postgresql://test:test@localhost/test";
 process.env.SERVICE_SECRET_KEY = "test-service-secret";
 
 beforeAll(async () => {
   // Only run migrations for integration tests (when a real DB is available)
-  if (process.env.EMAILGENERATION_SERVICE_DATABASE_URL && !process.env.EMAILGENERATION_SERVICE_DATABASE_URL.includes("localhost/test")) {
+  if (process.env.CONTENT_GENERATION_SERVICE_DATABASE_URL && !process.env.CONTENT_GENERATION_SERVICE_DATABASE_URL.includes("localhost/test")) {
     try {
       const { migrate } = await import("drizzle-orm/postgres-js/migrator");
       const { db } = await import("../src/db/index.js");
