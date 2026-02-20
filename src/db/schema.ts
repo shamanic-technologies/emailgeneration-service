@@ -77,6 +77,9 @@ export const emailGenerations = pgTable(
     promptRaw: text("prompt_raw"),
     responseRaw: jsonb("response_raw"),
 
+    // Workflow tracking
+    workflowName: text("workflow_name"),
+
     // Idempotency support — caller-supplied key to prevent duplicate generations
     idempotencyKey: text("idempotency_key"),
 
@@ -138,6 +141,9 @@ export const contentGenerations = pgTable(
     // Cost tracking
     generationRunId: text("generation_run_id"),
     parentRunId: text("parent_run_id"),
+
+    // Workflow tracking
+    workflowName: text("workflow_name"),
 
     // Model metadata
     model: text("model").notNull().default("claude-sonnet-4-6"),

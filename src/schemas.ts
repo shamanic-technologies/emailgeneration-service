@@ -120,6 +120,7 @@ export const GenerateRequestSchema = registry.register(
       campaignId: z.string().optional(),
       apolloEnrichmentId: z.string().optional(),
       idempotencyKey: z.string().optional(),
+      workflowName: z.string().optional(),
     })
     .openapi("GenerateRequest")
 );
@@ -264,6 +265,7 @@ export const GenerateContentRequestSchema = registry.register(
       includeFooter: z.boolean().optional().default(false),
       keyMode: z.enum(["byok", "app"]),
       parentRunId: z.string().optional(),
+      workflowName: z.string().optional(),
     })
     .openapi("GenerateContentRequest")
 );
@@ -321,6 +323,7 @@ export const GenerateCalendarRequestSchema = registry.register(
       prompt: z.string(),
       keyMode: z.enum(["byok", "app"]),
       parentRunId: z.string().optional(),
+      workflowName: z.string().optional(),
     })
     .openapi("GenerateCalendarRequest")
 );
