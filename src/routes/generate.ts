@@ -30,6 +30,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
       campaignId,
       apolloEnrichmentId,
       idempotencyKey,
+      workflowName,
     } = parsed.data;
 
     // Idempotency: return existing generation if key matches
@@ -104,6 +105,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         tokensOutput: result.tokensOutput,
         promptRaw: result.promptRaw,
         responseRaw: result.responseRaw,
+        workflowName: workflowName ?? null,
         idempotencyKey: idempotencyKey ?? null,
       })
       .returning();
@@ -118,6 +120,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         serviceName: "content-generation-service",
         taskName: "single-generation",
         parentRunId: runId,
+        workflowName,
       });
 
       // Link generation run to email record IMMEDIATELY so per-item cost

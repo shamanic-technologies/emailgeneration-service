@@ -34,7 +34,7 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
       return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
     }
 
-    const { appId, prompt, variables, includeFooter, keyMode, parentRunId } = parsed.data;
+    const { appId, prompt, variables, includeFooter, keyMode, parentRunId, workflowName } = parsed.data;
 
     // Get Anthropic API key
     const apiKey = await resolveApiKey(keyMode, req.clerkOrgId!, appId);
@@ -49,6 +49,7 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
       serviceName: "content-generation-service",
       taskName: "content-generation",
       parentRunId,
+      workflowName,
     });
 
     // Store in database
@@ -67,6 +68,7 @@ router.post("/generate/content", serviceAuth, async (req: AuthenticatedRequest, 
         bodyText: result.bodyText,
         generationRunId: genRun.id,
         parentRunId: parentRunId ?? null,
+        workflowName: workflowName ?? null,
         model: "claude-sonnet-4-6",
         tokensInput: result.tokensInput,
         tokensOutput: result.tokensOutput,
@@ -112,7 +114,7 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
       return res.status(400).json({ error: parsed.error.issues.map((i) => i.message).join(", ") });
     }
 
-    const { appId, prompt, keyMode, parentRunId } = parsed.data;
+    const { appId, prompt, keyMode, parentRunId, workflowName } = parsed.data;
 
     // Get Anthropic API key
     const apiKey = await resolveApiKey(keyMode, req.clerkOrgId!, appId);
@@ -127,6 +129,7 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
       serviceName: "content-generation-service",
       taskName: "calendar-generation",
       parentRunId,
+      workflowName,
     });
 
     // Store in database
@@ -143,6 +146,7 @@ router.post("/generate/calendar", serviceAuth, async (req: AuthenticatedRequest,
         location: result.location,
         generationRunId: genRun.id,
         parentRunId: parentRunId ?? null,
+        workflowName: workflowName ?? null,
         model: "claude-sonnet-4-6",
         tokensInput: result.tokensInput,
         tokensOutput: result.tokensOutput,
