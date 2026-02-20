@@ -10,7 +10,7 @@ vi.mock("@anthropic-ai/sdk", () => {
           content: [
             {
               type: "text" as const,
-              text: JSON.stringify({ subject: "Quick question", body: "Hi John, noticed Acme is scaling fast. Curious how you handle outreach today?" }),
+              text: JSON.stringify({ subject: "Quick question", body: "Hi John, noticed Acme is scaling fast. Curious how you handle outreach today?", followup1: "Just circling back.", followup2: "Last note — different angle." }),
             },
           ],
           usage: { input_tokens: 100, output_tokens: 50 },
@@ -29,20 +29,22 @@ describe("generateFromTemplate should NOT include a signature", () => {
     },
   };
 
-  it("bodyHtml does not contain signature elements", async () => {
+  it("sequence step 1 bodyHtml does not contain signature elements", async () => {
     const result = await generateFromTemplate("fake-key", params);
+    const bodyHtml = result.sequence[0].bodyHtml;
 
-    expect(result.bodyHtml).not.toContain("Kevin Lourd");
-    expect(result.bodyHtml).not.toContain("GrowthAgency.dev");
-    expect(result.bodyHtml).not.toContain("pm:unsubscribe");
-    expect(result.bodyHtml).not.toContain("<table");
+    expect(bodyHtml).not.toContain("Kevin Lourd");
+    expect(bodyHtml).not.toContain("GrowthAgency.dev");
+    expect(bodyHtml).not.toContain("pm:unsubscribe");
+    expect(bodyHtml).not.toContain("<table");
   });
 
-  it("bodyText does not contain signature elements", async () => {
+  it("sequence step 1 bodyText does not contain signature elements", async () => {
     const result = await generateFromTemplate("fake-key", params);
+    const bodyText = result.sequence[0].bodyText;
 
-    expect(result.bodyText).not.toContain("Kevin Lourd");
-    expect(result.bodyText).not.toContain("GrowthAgency.dev");
-    expect(result.bodyText).not.toContain("pm:unsubscribe");
+    expect(bodyText).not.toContain("Kevin Lourd");
+    expect(bodyText).not.toContain("GrowthAgency.dev");
+    expect(bodyText).not.toContain("pm:unsubscribe");
   });
 });

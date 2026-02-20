@@ -62,8 +62,11 @@ vi.mock("../../src/lib/key-client.js", () => ({
 vi.mock("../../src/lib/anthropic-client.js", () => ({
   generateFromTemplate: vi.fn().mockResolvedValue({
     subject: "Test subject",
-    bodyHtml: "<p>Test body</p>",
-    bodyText: "Test body",
+    sequence: [
+      { step: 1, bodyHtml: "<p>Test body</p>", bodyText: "Test body", delayDays: 0 },
+      { step: 2, bodyHtml: "<p>Follow-up 1</p>", bodyText: "Follow-up 1", delayDays: 3 },
+      { step: 3, bodyHtml: "<p>Follow-up 2</p>", bodyText: "Follow-up 2", delayDays: 10 },
+    ],
     tokensInput: 500,
     tokensOutput: 100,
     promptRaw: "resolved prompt",

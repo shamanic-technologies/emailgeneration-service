@@ -45,8 +45,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         return res.json({
           id: existing.id,
           subject: existing.subject ?? "",
-          bodyHtml: existing.bodyHtml ?? "",
-          bodyText: existing.bodyText ?? "",
+          sequence: existing.sequence ?? [],
           tokensInput: existing.tokensInput ?? 0,
           tokensOutput: existing.tokensOutput ?? 0,
         });
@@ -99,8 +98,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
         leadIndustry: str(variables.leadCompanyIndustry),
         clientCompanyName: str(variables.clientCompanyName),
         subject: result.subject,
-        bodyHtml: result.bodyHtml,
-        bodyText: result.bodyText,
+        sequence: result.sequence,
         model: "claude-sonnet-4-6",
         tokensInput: result.tokensInput,
         tokensOutput: result.tokensOutput,
@@ -153,8 +151,7 @@ router.post("/generate", serviceAuth, async (req: AuthenticatedRequest, res) => 
     res.json({
       id: generation.id,
       subject: result.subject,
-      bodyHtml: result.bodyHtml,
-      bodyText: result.bodyText,
+      sequence: result.sequence,
       tokensInput: result.tokensInput,
       tokensOutput: result.tokensOutput,
     });

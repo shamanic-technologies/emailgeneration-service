@@ -66,8 +66,11 @@ vi.mock("../../src/lib/key-client.js", () => ({
 
 const mockGenerateFromTemplate = vi.fn().mockResolvedValue({
   subject: "Fresh subject",
-  bodyHtml: "<p>Fresh body</p>",
-  bodyText: "Fresh body",
+  sequence: [
+    { step: 1, bodyHtml: "<p>Fresh body</p>", bodyText: "Fresh body", delayDays: 0 },
+    { step: 2, bodyHtml: "<p>Follow-up 1</p>", bodyText: "Follow-up 1", delayDays: 3 },
+    { step: 3, bodyHtml: "<p>Follow-up 2</p>", bodyText: "Follow-up 2", delayDays: 10 },
+  ],
   tokensInput: 500,
   tokensOutput: 100,
   costUsd: 0.005,
@@ -122,8 +125,11 @@ describe("POST /generate idempotency", () => {
     mockGenFindFirst.mockResolvedValue({
       id: "cached-gen-id",
       subject: "Cached subject",
-      bodyHtml: "<p>Cached</p>",
-      bodyText: "Cached",
+      sequence: [
+        { step: 1, bodyHtml: "<p>Cached</p>", bodyText: "Cached", delayDays: 0 },
+        { step: 2, bodyHtml: "<p>Cached f1</p>", bodyText: "Cached f1", delayDays: 3 },
+        { step: 3, bodyHtml: "<p>Cached f2</p>", bodyText: "Cached f2", delayDays: 10 },
+      ],
       tokensInput: 400,
       tokensOutput: 80,
     });
@@ -157,6 +163,7 @@ describe("POST /generate idempotency", () => {
 
     expect(res.body.id).toBe("gen-789");
     expect(res.body.subject).toBe("Fresh subject");
+    expect(res.body.sequence).toHaveLength(3);
 
     // Claude SHOULD be called
     expect(mockGenerateFromTemplate).toHaveBeenCalledOnce();
@@ -173,6 +180,7 @@ describe("POST /generate idempotency", () => {
 
     expect(res.body.id).toBe("gen-789");
     expect(res.body.subject).toBe("Fresh subject");
+    expect(res.body.sequence).toHaveLength(3);
 
     // Idempotency lookup should NOT be called
     expect(mockGenFindFirst).not.toHaveBeenCalled();
