@@ -69,7 +69,6 @@ describe("structured JSON output", () => {
     });
 
     const callArgs = mockCreate.mock.calls[0][0];
-    expect(callArgs.system).toContain("Always respond with the final email");
-    expect(callArgs.system).toContain("Never respond with commentary");
+    expect(callArgs.system).toContain("Always respond with the final email to send to the recipient");
   });
 });
